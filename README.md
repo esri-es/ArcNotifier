@@ -10,8 +10,6 @@ node index.js
 
 > **Nota**: Si al hacer ```npm install``` te produce un error ```Error: ENOENT, stat 'C:\Users\<user>\AppData\Roaming\npm'``` puedes resolverlo [como se indica en este enlace](https://github.com/npm/npm/wiki/Troubleshooting#error-enoent-stat-cusersuserappdataroamingnpm-on-windows-7).
 
-> **Nota:** el script usa actualmente la versión de ArcNode de la [rama update-entities](https://github.com/esri-es/ArcNode/tree/update-entities), por lo que después de correr npm install deberás sobreescribir la carpeta ```node_modules/arc-node``` con el código de esta rama.
-
 # Configuración
 
 ## Configuración del servicio
@@ -22,62 +20,62 @@ Además de esto debe contener otros 3 campos:
 * last_emailed_user (type: esriFieldTypeString, alias: last_emailed_user, SQL Type: sqlTypeOther, length: 50, nullable: true, editable: true)
 * last_emailed_date (type: esriFieldTypeDate, alias: last_emailed_date, SQL Type: sqlTypeOther, length: 8, nullable: true, editable: true)
 
-## Fichero: arcnode_config.json
-En arcnode_config.json hay que introducir las credenciales de un admin de la organización
+## Fichero: config.json
+
 
 ```javascript
 {
-    "username":       "",
-    "password":       "",
-    "account_id":     "",
-    "root_url":       "",
-    "services_url":   ""
-}
-```
+  "organization": {
+    "username":         "<Your username>",
+    "password":         "<Your password>",
+    "account_id":       "",
+    "root_url":         "<Your Portal's domain>",
+    "services_url":     "<Your Portal's domain>",
+    "arcgisPath":       "<If using Arcgis Online leave it empty, if not default is: arcgis>",
+    "portalPath":       "<If using Arcgis Online leave it empty, if not default is: portal>",
+    "port":             <Default: 443, portal uses 7443>,
+    "allowSelfSigned":  <Default: false; true if self signed certificates are valid>,
+    "groups": {
+      "2821ddd9e6144df7a6f2ae4f0d85387c": "policia",
+      "2f90abf3e0b448a6ab5e2308a5b2df7e": "mantenimiento",
+      "7bd2c9f1d77f44308aae39535d505b39": "oitr"
+    }
+  },
 
-## Fichero: arcnotifier_config.json
-
-```javascript
-{
-  "timeScheduler": "*/20 * * * * *",
+  "timeScheduler": "*/15 * * * * *",
   
-  "feature_service": "http://services.arcgis.com/K99CvydNYkQGvDRu/arcgis/rest/services/se%C3%B1ales_rivas/FeatureServer/0",
+  "portal_item": "33579f7b887440dfa5fca9df0d6c365f",
+  "layer": 0,
   
   "smtp_server": {
-     "user":    "", 
-     "password":"", 
-     "host":    "", 
+     "user":    "<Your username>",
+     "password":"<Your password>",
+     "host":    "<Your smtp server>", 
      "port":    587,
      "tls":     true
-  },
-  
-  "groups": {
-    "e00413ab07364c18a55612becb3c4938": "policia",
-    "87b21076793c49c88617aa31dd0e4734": "mantenimiento",
-    "78030d9d11b446f5ba59281fdb1fee8a": "oitr"
-  },
+  }, 
    
   "flow": {
     "policia": {
       "INICIADO": {
-        "from": "Raul Jimenez <raul.jimenez@esri.es>",
-        "to": "Departamento de mantenimiento <hhkaos+mto@gmail.com>",
+        "from": "Esteban Armas <esteban.armas@esri.es>",
+        "to": "Departamento de mantenimiento <raul.jimenez@esri.es>",
         "subject": "Aviso: Nuevo expediente abierto",
-        "text": "Se ha abierto un nuevo expediente, nº asignado ${OBJECTID}\nhttp://admonlocal.maps.arcgis.com/home/webmap/viewer.html?webmap=ffcdb618d1914de0a0376aa810a6511f"
+        "text": "Se ha abierto un nuevo expediente, nº asignado \nhttp://www.myapp.com/app/index.html?id=${OBJECTID}"
       },
       "PENDIENTE OITR": {
-        "from": "Raul Jimenez <raul.jimenez@esri.es>",
-        "to": "OITR Rivas <hhkaos+oitr@gmail.com>",
+        "from": "Esteban Armas <esteban.armas@esri.es>",
+        "to": "OITR Rivas <raul.jimenez@esri.es>",
         "subject": "Aviso: Expediente validado",
-        "text": "Policia confirma que el expediente ${OBJECTID} ha sido subsanado correctamente por mantenimiento\nhttp://admonlocal.maps.arcgis.com/home/webmap/viewer.html?webmap=fde068e009db4102ab757581fb48ec9d"
+        "text": "Policia confirma que el expediente ${OBJECTID} ha sido subsanado correctamente por mantenimiento\nhttp://admonlocal.maps.arcgis.com/home/webmap/viewer.html?webmap=fde068e009db4102ab757581fb48ec9d&marker=#{X},#{Y},25830&level=17"
       }
     },
     "mantenimiento": {
-      "SUBSANADO": {
-        "from": "Raul Jimenez <raul.jimenez@esri.es>",
-        "to": "Departamento de policía - Unidad de tráfico <hhkaos+policia@gmail.com>",
+      "SUBSANADO": {  
+        "from": "Esteban Armas <esteban.armas@esri.es>",
+        "to": "Departamento de policía - Unidad de tráfico <raul.jimenez@esri.es>",
         "subject": "Aviso: Expediente subsanado",
-        "text": "El expediente ${OBJECTID} ha sido subsanado por mantenimiento\nhttp://admonlocal.maps.arcgis.com/home/webmap/viewer.html?webmap=ec04ebede96b4a38a9512b3e5cfe7676"
+        "text": "El expediente ${CODIGO} ha sido subsanado por mantenimiento ver enlace http://www.myapp.com/app/index.html?id=${OBJECTID}"
       }
     },
     "oitr": {
@@ -85,12 +83,11 @@ En arcnode_config.json hay que introducir las credenciales de un admin de la org
     }
   }
 }
+
 ```
 
 # Ejecución y reinicio
-Accedemos al directorio donde se encuentra el script (en el caso del piloto de rivas: ```C:\inetpub\wwwroot\flujo-rivas\arc-notifier\```)
-
-Y ejecutamos:
+Accedemos al directorio donde se encuentra el script y ejecutamos:
 ```
 node index.js
 ```

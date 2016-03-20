@@ -1,0 +1,21 @@
+{
+  "name": "arcnotifier",
+  "version": "1.0.0",
+  "description": "Script para envío de notificaciones cuando cambia el atributo 'Estado' de un feature",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Raul Jimenez <raul.jimenez@esri.es>",
+  "license": "BSD-2-Clause",
+  "dependencies": {
+    "arc-node": "^0.3.0",
+    "arcgis": "^1.0.0-beta.1",
+    "cron": "^1.1.0",
+    "emailjs": "^1.0.4"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:esri-es/preventas.git"
+  }
+}

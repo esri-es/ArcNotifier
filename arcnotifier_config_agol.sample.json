@@ -1,0 +1,59 @@
+{
+  "organization": {
+    "username":         "<Your username>",
+    "password":         "<Your password>",
+    "account_id":       "<Your account ID, from: http://services.arcgis.com/Q6ZFRRvMTlsTTFuP/arcgis/rest/services/... would be Q6ZFRRvMTlsTTFuP>",
+    "root_url":         "<In case you are using ArcGIS Online: www.arcgis.com, or your Portal's domain>",
+    "services_url":     "<Domain where your services are hosted. Would be services.arcgis.com if you are using ArcGIS Online>",
+    "arcgisPath":       "",
+    "portalPath":       "",
+    "port":             443,
+    "allowSelfSigned":  false,
+    "groups": {
+      "e00413ab07364c18a55612becb3c4938": "policia",
+      "87b21076793c49c88617aa31dd0e4734": "mantenimiento",
+      "78030d9d11b446f5ba59281fdb1fee8a": "oitr"
+    }
+  },
+
+  "timeScheduler": "*/15 * * * * *",
+  
+  "portal_item": "46eec9c7076f43c4ab31ee1baa0d90f0",
+  "layer": 0,
+  
+  "smtp_server": {
+     "user":    "<Your username>",
+     "password":"<Your password>",
+     "host":    "<Your smtp server>", 
+     "port":    587,
+     "tls":     true
+  }, 
+   
+  "flow": {
+    "policia": {
+      "INICIADO": {
+        "from": "Esteban Armas <esteban.armas@esri.es>",
+        "to": "Departamento de mantenimiento <raul.jimenez@esri.es>",
+        "subject": "Aviso: Nuevo expediente abierto",
+        "text": "Se ha abierto un nuevo expediente, nº asignado \nhttp://www.myapp.com/app/index.html?id=${OBJECTID}"
+      },
+      "PENDIENTE OITR": {
+        "from": "Esteban Armas <esteban.armas@esri.es>",
+        "to": "OITR Rivas <raul.jimenez@esri.es>",
+        "subject": "Aviso: Expediente validado",
+        "text": "Policia confirma que el expediente ${OBJECTID} ha sido subsanado correctamente por mantenimiento\nhttp://admonlocal.maps.arcgis.com/home/webmap/viewer.html?webmap=fde068e009db4102ab757581fb48ec9d&marker=#{X},#{Y},25830&level=17"
+      }
+    },
+    "mantenimiento": {
+      "SUBSANADO": {  
+        "from": "Esteban Armas <esteban.armas@esri.es>",
+        "to": "Departamento de policía - Unidad de tráfico <raul.jimenez@esri.es>",
+        "subject": "Aviso: Expediente subsanado",
+        "text": "El expediente ${CODIGO} ha sido subsanado por mantenimiento ver enlace http://www.myapp.com/app/index.html?id=${OBJECTID}"
+      }
+    },
+    "oitr": {
+
+    }
+  }
+}

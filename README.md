@@ -1,7 +1,5 @@
 #arc-notifier
 
-[<img src="https://i.ytimg.com/vi/OCW77kQ1974/hqdefault.jpg">](https://www.youtube.com/watch?v=OCW77kQ1974&feature=youtu.be)
-
 # Instalación
 Para instalar este script es necesario tener [Node.js](https://nodejs.org/en/) con NPM instalado. A continuación tan solo hace falta descargar el código y hacer:
 

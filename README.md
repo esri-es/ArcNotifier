@@ -67,7 +67,7 @@ Además de esto debe contener otros 3 campos:
         "from": "Esteban Armas <esteban.armas@esri.es>",
         "to": "OITR Rivas <raul.jimenez@esri.es>",
         "subject": "Aviso: Expediente validado",
-        "text": "Policia confirma que el expediente ${OBJECTID} ha sido subsanado correctamente por mantenimiento\nhttp://admonlocal.maps.arcgis.com/home/webmap/viewer.html?webmap=fde068e009db4102ab757581fb48ec9d&marker=#{X},#{Y},25830&level=17"
+        "text": "Policia confirma que el expediente ${OBJECTID} ha sido subsanado correctamente por mantenimiento\nhttp://maps.arcgis.com/home/webmap/viewer.html?webmap=fde068e009db4102ab757581fb48ec9d&marker=#{X},#{Y},25830&level=17"
       }
     },
     "mantenimiento": {

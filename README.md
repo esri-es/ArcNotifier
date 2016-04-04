@@ -15,7 +15,7 @@ npm install
 Para el correcto funcionamiento el servicio alojado en *ArcGIS Online* o *ArcGIS server* tiene que:
 
 1. Estar protegido (no accesible públicamente)
-2. Tener habilitado la opción *[editor traking](http://server.arcgis.com/en/server/10.3/publish-services/windows/editor-tracking-for-feature-services.htm)*.
+2. Tener habilitado la opción *[editor tracking](http://server.arcgis.com/en/server/10.3/publish-services/windows/editor-tracking-for-feature-services.htm)*.
 3. Y contener estos tres campos editables:
   * **Estado** de tipo *esriFieldTypeString*
   * **last_emailed_user** de tipo *esriFieldTypeString*

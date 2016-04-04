@@ -1,57 +1,56 @@
 {
-  "organization": {
-    "username":         "<Your username>",
-    "password":         "<Your password>",
-    "account_id":       "<Your account ID, from: http://services.arcgis.com/Q6ZFRRvMTlsTTFvP/arcgis/rest/services/... would be Q6ZFRRvMTlsTTFvP>",
-    "root_url":         "www.arcgis.com",
-    "services_url":     "services.arcgis.com",
-    "arcgisPath":       "",
-    "portalPath":       "",
-    "port":             443,
-    "allowSelfSigned":  false,
-    "groups": {
-      "e00413ab07364c18a55612becb3c4938": "policia",
-      "87b21076793c49c88617aa31dd0e4734": "mantenimiento",
-      "78030d9d11b446f5ba59281fdb1fee8a": "oitr"
-    }
-  },
+	"organization": {
+		"username": "<Your username>",
+		"password": "<Your password>",
+		"account_id": "<Your account ID, from: http://services.arcgis.com/Q6ZFRRvMTlsTTFvP/arcgis/rest/services/... would be Q6ZFRRvMTlsTTFvP>",
+		"root_url": "www.arcgis.com",
+		"services_url": "services.arcgis.com",
+		"arcgisPath": "",
+		"portalPath": "",
+		"port": 443,
+		"allowSelfSigned": false,
+		"groups": {
+			"e00413ab07364c18a55612becb3c4938": "policia",
+			"87b21076793c49c88617aa31dd0e4734": "mantenimiento",
+			"78030d9d11b446f5ba59281fdb1fee8a": "oitr"
+		}
+	},
 
-  "timeScheduler": "*/15 * * * * *",
-  
-  "portal_item": "46eec9c7076f43c4ab31ee1baa0d90f0",
-  "layer": 0,
-  
-  "smtp_server": {
-     "user":    "<Your username>",
-     "password":"<Your password>",
-     "host":    "<Your smtp server>", 
-     "port":    587,
-     "tls":     true
-  }, 
-   
-  "flow":{
-     "policia": {
-       "INICIADO": {
-         "from": "Sistema automático de notificaciones <script@arcnotifier.es>",
-         "to": "Departamento de mantenimiento <personal@mantenimiento.es>",
-         "subject": "Aviso: Nuevo expediente abierto",
-         "text": "Se ha abierto un nuevo expediente con el nº asignado ${OBJECTID}.\nhttp://www.myapp.com/app/index.html?id=${OBJECTID}"
-       },
-       "PENDIENTE OIT": {
-         "from": "Sistema automático de notificaciones <script@arcnotifier.es>",
-         "to": "Oficina de Información Territorial <personal@oit.es>",
-         "subject": "Aviso: Expediente validado",
-         "text": "Policia confirma que el expediente ${OBJECTID} ha sido subsanado correctamente por mantenimiento \nhttp://www.myapp.com/app/index.html?id=${OBJECTID}"
-       }
-     },
-     "mantenimiento": {
-       "SUBSANADO": {  
-         "from": "Sistema automático de notificaciones <script@arcnotifier.es>",
-         "to": "Departamento de policía <personal@policia.es>",
-         "subject": "Aviso: Expediente subsanado",
-         "text": "El expediente ${CODIGO} ha sido subsanado por mantenimiento ver enlace http://www.myapp.com/app/index.html?id=${OBJECTID}"
-       }
-     }
-    }
-  }
+	"timeScheduler": "*/15 * * * * *",
+
+	"portal_item": "46eec9c7076f43c4ab31ee1baa0d90f0",
+	"layer": 0,
+
+	"smtp_server": {
+		"user": "<Your username>",
+		"password": "<Your password>",
+		"host": "<Your smtp server>",
+		"port": 587,
+		"tls": true
+	},
+
+	"flow": {
+		"policia": {
+			"INICIADO": {
+				"from": "Sistema automático de notificaciones <script@arcnotifier.es>",
+				"to": "Departamento de mantenimiento <personal@mantenimiento.es>",
+				"subject": "Aviso: Nuevo expediente abierto",
+				"text": "Se ha abierto un nuevo expediente con el nº asignado ${OBJECTID}.\nhttp://www.myapp.com/app/index.html?id=${OBJECTID}"
+			},
+			"PENDIENTE OIT": {
+				"from": "Sistema automático de notificaciones <script@arcnotifier.es>",
+				"to": "Oficina de Información Territorial <personal@oit.es>",
+				"subject": "Aviso: Expediente validado",
+				"text": "Policia confirma que el expediente ${OBJECTID} ha sido subsanado correctamente por mantenimiento \nhttp://www.myapp.com/app/index.html?id=${OBJECTID}"
+			}
+		},
+		"mantenimiento": {
+			"SUBSANADO": {
+				"from": "Sistema automático de notificaciones <script@arcnotifier.es>",
+				"to": "Departamento de policía <personal@policia.es>",
+				"subject": "Aviso: Expediente subsanado",
+				"text": "El expediente ${CODIGO} ha sido subsanado por mantenimiento ver enlace http://www.myapp.com/app/index.html?id=${OBJECTID}"
+			}
+		}
+	}
 }

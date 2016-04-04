@@ -73,7 +73,7 @@ De este modo se indica que cuando un usuario perteneciente al *nombre_grupo_1* a
 Veamos un ejemplo real:
 
 ````javascript
-flow:{
+"flow":{
  "policia": {
    "INICIADO": {
      "from": "Sistema automático de notificaciones <script@arcnotifier.es>",

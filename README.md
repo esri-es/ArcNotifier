@@ -58,7 +58,7 @@ Veamos a continuación cada uno de los parámetros que incluyen estos ficheros.
 ### Definición de un flujo de trabajo
 La configuración del flujo se hace a través del objeto **flow**, este objeto contiene por cada grupo de la organización los estados que servirán de disparadores del siguiente modo:
 ````javascript
-flow:{
+"flow":{
  "nombre_grupo_1":{
   "estado_disparador_1":{
    ... detalles de la notificación...
@@ -100,7 +100,7 @@ Veamos un ejemplo real:
 ```
 En este ejemplo vemos que el sistema enviará las siguientes notificaciones:
 * Cuando un usuario del grupo **policia** añada o modifique un registro y lo deje en estado **INICIADO** o **PENDIENTE OIT**, en función del estado la notificación irá dirigido a un destinatario distinto:
- * **INICIADO**: se le enviará a **personal@mantenimiento.es** (que puede ser una lista de correo por ejemplo) de forma que todo el departamento de mantenimiento tenga constancia de la incidencia. Con el título y el cuerpo indicados.
+ * **INICIADO**: se le enviará a **personal@mantenimiento.es** (que podría ser una lista de correo) de forma que todo el departamento de mantenimiento tenga constancia de la incidencia. El correo tendría el título y el cuerpo indicados en las propiedades del objeto.
  * **PENDIENTE OIT**: se le enviará a **personal@oit.es** con el título y el cuerpo indicados.
 * Cuando un usuario del grupo **mantenimiento** añada o modifique un registro y lo deje en estado **SUBSANADO** se le enviará una notificación a **personal@policia.es**.
 
@@ -117,4 +117,7 @@ Ctrl
 
 # FAQ
 
-1. Si al hacer ```npm install``` se produce en error ```Error: ENOENT, stat 'C:\Users\<user>\AppData\Roaming\npm'``` puedes resolverlo [como se indica en este enlace](https://github.com/npm/npm/wiki/Troubleshooting#error-enoent-stat-cusersuserappdataroamingnpm-on-windows-7).
+Para dudas y sugerencias puede dirigirse a los [issues del proyecto](https://github.com/esri-es/ArcNotifier/issues).
+
+Si al hacer ```npm install``` se produce en error ```Error: ENOENT, stat 'C:\Users\<user>\AppData\Roaming\npm'``` puedes resolverlo [como se indica en este enlace](https://github.com/npm/npm/wiki/Troubleshooting#error-enoent-stat-cusersuserappdataroamingnpm-on-windows-7).
+

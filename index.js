@@ -1,6 +1,6 @@
 'use strict';
 
-var config  = require('./arcnotifier_config_agol'),
+var config  = require('./config'),
     emailjs = require('./node_modules/emailjs/email'),
     ArcGIS  = require('arcgis'),
     CronJob = require('cron').CronJob,

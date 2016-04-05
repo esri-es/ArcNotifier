@@ -2,7 +2,7 @@
 Arc-Notifier es un script escrito en NodeJS que permite enviar notificaciones vía email cuando un registro cambia de estado. El principal propósito de este script es ayudar a crear un sistema de notificaciones para flujos de trabajo como veremos más adelante.
 
 # Instalación
-Para instalar este script es necesario tener [Node.js](https://nodejs.org/en/) con NPM instalado. A continuación tan solo hace falta descargar el código y hacer:
+Para instalar este script es necesario tener [Node.js](https://nodejs.org/en/) con [NPM](http://blog.npmjs.org/post/85484771375/how-to-install-npm) instalado. A continuación tan solo hace falta descargar el código y hacer:
 
 ```bash
 npm install

@@ -3,9 +3,10 @@ Arc-Notifier es un script escrito en NodeJS que permite enviar notificaciones v�
 
 [<img src="https://i.ytimg.com/vi/reX7ZTi2Alo/hqdefault.jpg">](https://www.youtube.com/watch?v=reX7ZTi2Alo)
 
+> **Nota**: Esta desmotración se ha realizado sobre una organización de ArcGIS Online
 
 # Video tutorial de instalación y configuración
-En este otro vídeo (~19min) podemos ver un ejemplo de configuración del script:
+En este otro vídeo (~19min) podemos ver un ejemplo de cómo configurar el script con una organización de Portal for ArcGIS:
 
 [<img src="https://i.ytimg.com/vi/8Bwt25WbKjM/hqdefault.jpg">](https://www.youtube.com/watch?v=8Bwt25WbKjM)
 

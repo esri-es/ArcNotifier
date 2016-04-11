@@ -1,6 +1,6 @@
 'use strict';
 
-var config  = require('./arcnotifier_config_agol'),
+var config  = require('./config'),
     emailjs = require('./node_modules/emailjs/email'),
     ArcGIS  = require('arcgis'),
     CronJob = require('cron').CronJob,
@@ -83,7 +83,7 @@ try {
       serviceUrl: feature_service,
       query: {
           f: 'json',
-          where: '(last_edited_date > last_emailed_date OR last_emailed_date is null) AND created_date > \'3/19/2016\' AND Estado <> \'FINALIZADO\'',
+          where: '(last_edited_date > last_emailed_date OR last_emailed_date is null) AND created_date > \'4/1/2016\' AND Estado <> \'FINALIZADO\'',
           outFields: '*',
       }
     }).then(function(res){
@@ -129,7 +129,9 @@ try {
 
                   email = userGroup[last_user_group_name][f['Estado']];
 
-                  email.text = parseMail(email.text, f, geo);
+                  email.attachment = [
+                    { data: parseMail(email.text, f, geo), alternative: true}
+                  ];
                   
                   // send the message and get a callback with an error or details of the message that was sent
                   var server  = emailjs.server.connect(config.smtp_server);

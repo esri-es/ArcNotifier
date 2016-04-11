@@ -33,6 +33,8 @@ Para el correcto funcionamiento el servicio alojado en *ArcGIS Online* o *ArcGIS
   * **last_emailed_user** de tipo *esriFieldTypeString*
   * **last_emailed_date** de tipo *esriFieldTypeDate*
 
+Se han compartido en la [carpeta data](https://github.com/esri-es/ArcNotifier/tree/master/data) del repositorio una base de datos de ejemplo en dos formatos: [GDB](https://github.com/esri-es/ArcNotifier/raw/master/data/GDB_SAMPLE.gdb.zip) y [esquema XML](https://raw.githubusercontent.com/esri-es/ArcNotifier/master/data/XML_GDB.XML)
+
 ### Fichero de configuración
 
 Para configurar el servicio tendremos que crear un fichero llamado **config.json** en la carpeta raíz. Para facilitar esta tarea se han creado dos ficheros de ejemplo **[config_agol.sample.json](https://github.com/esri-es/ArcNotifier/blob/master/config_agol.sample.json)** y **[config_portal.sample.json](https://github.com/esri-es/ArcNotifier/blob/master/config_portal.sample.json)**	que contienen un esqueleto de la estructura del fichero para configurar el servicio contra *ArcGIS Online* y *Portal for ArcGIS* respectivamente.

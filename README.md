@@ -1,16 +1,28 @@
 #arc-notifier
-Arc-Notifier es un script escrito en NodeJS que permite enviar notificaciones vía email cuando un registro cambia de estado. El principal propósito de este script es ayudar a crear un sistema de notificaciones para flujos de trabajo como veremos más adelante.
+Arc-Notifier es un script escrito en NodeJS que permite enviar notificaciones vía email cuando un registro de un servicio publicado en ArcGIS Online o Portal for ArcGIS cambia de estado. El principal propósito de este script es ayudar a crear un sistema de notificaciones para flujos de trabajo como podemos ver en este vídeo de demostración (~16min):
 
-# Instalación
-Para instalar este script es necesario tener [Node.js](https://nodejs.org/en/) con NPM instalado. A continuación tan solo hace falta descargar el código y hacer:
+[<img src="https://i.ytimg.com/vi/reX7ZTi2Alo/hqdefault.jpg">](https://www.youtube.com/watch?v=reX7ZTi2Alo)
+
+> **Nota**: Esta desmotración se ha realizado sobre una organización de ArcGIS Online
+
+# Video tutorial de instalación y configuración
+En este otro vídeo (~19min) podemos ver un ejemplo de cómo configurar el script con una organización de Portal for ArcGIS:
+
+[<img src="https://i.ytimg.com/vi/8Bwt25WbKjM/hqdefault.jpg">](https://www.youtube.com/watch?v=8Bwt25WbKjM)
+
+# Manual 
+
+## Instalación
+
+Para instalar este script es necesario tener [Node.js](https://nodejs.org/en/) con [NPM](http://blog.npmjs.org/post/85484771375/how-to-install-npm) instalado. A continuación tan solo hace falta descargar el código y hacer:
 
 ```bash
 npm install
 ```
 
-# Configuración
+## Configuración
 
-## Configuración del servicio
+### Configuración del servicio
 
 Para el correcto funcionamiento el servicio alojado en *ArcGIS Online* o *ArcGIS server* tiene que:
 
@@ -21,7 +33,7 @@ Para el correcto funcionamiento el servicio alojado en *ArcGIS Online* o *ArcGIS
   * **last_emailed_user** de tipo *esriFieldTypeString*
   * **last_emailed_date** de tipo *esriFieldTypeDate*
 
-## Fichero de configuración
+### Fichero de configuración
 
 Para configurar el servicio tendremos que crear un fichero llamado **config.json** en la carpeta raíz. Para facilitar esta tarea se han creado dos ficheros de ejemplo **[config_agol.sample.json](https://github.com/esri-es/ArcNotifier/blob/master/config_agol.sample.json)** y **[config_portal.sample.json](https://github.com/esri-es/ArcNotifier/blob/master/config_portal.sample.json)**	que contienen un esqueleto de la estructura del fichero para configurar el servicio contra *ArcGIS Online* y *Portal for ArcGIS* respectivamente.
 
@@ -106,7 +118,7 @@ En este ejemplo vemos que el sistema enviará las siguientes notificaciones:
 
 > **IMPORTANTE**: el nombre de los estados debe coincidir exáctamente con el valor que aloje el servicio (mayúsculas, minúsculas y espacios incluido), al igual que los grupos de los grupos con los especificados en el campo **groups**.
 
-# Ejecución y reinicio
+## Ejecución y reinicio
 Accedemos al directorio donde se encuentra el script y ejecutamos:
 ```
 node index.js
@@ -115,7 +127,7 @@ node index.js
 En caso de que fuese necesario reiniciarlo tan sólo tenemos que para el script con Ctrl + C y volver a ejecutarlo.
 Ctrl
 
-# FAQ
+## FAQ
 
 Para dudas y sugerencias puede dirigirse a los [issues del proyecto](https://github.com/esri-es/ArcNotifier/issues).
 

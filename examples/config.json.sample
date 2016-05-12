@@ -7,5 +7,5 @@
     "arcgisPath":       "<If using Arcgis Online leave it empty, if not default is: arcgis>",
     "portalPath":       "<If using Arcgis Online leave it empty, if not default is: portal>",
     "port":             <Default: 443, portal uses 7443>,
-    "allowSelfSigned":  <Default: false; true if self signed certificates are valid>,
+    "allowSelfSigned":  <Default: false; true if self signed certificates are valid>
 }

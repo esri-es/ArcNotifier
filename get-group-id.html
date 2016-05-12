@@ -1,0 +1,159 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="initial-scale=1, maximum-scale=1,user-scalable=no" />
+<title>Get group ID - Group ID Finder for ArcGIS</title>
+
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+
+<!-- Optional theme -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+
+<style>
+  #portal_url_field, table{
+    display: none;
+  }
+  #message{
+    margin: 1rem 0;
+    border: 1px solid #F00;
+    padding: .5rem 0;
+    background-color: #F9C7C7;
+    display: none;
+  }
+
+  #table{
+    margin-top: 2rem;
+  }
+</style>
+<script>
+  try{
+    $(document).ready(function(){
+      $('#type').change(function(){
+        if($(this).val() !== 'agol'){
+          $('#portal_url_field').show();
+        }else{
+          $('#portal_url_field').hide();
+        }
+      });
+
+      $('form').submit(function(e){
+        e.preventDefault();
+        var tokenUrl;
+        if($('#type').val() !== 'agol'){
+          //https://srvsolution1.esri.es:7443
+          var host = $('#portal_url').val();
+          tokenUrl = host + '/arcgis/sharing/rest/generateToken';
+          host = host.split(':');
+          host.pop()
+          host = host.join(':');
+          userURL = host + '/portal/sharing/rest/community/users/'+$('#user').val()+'?f=json&token=';
+        }else{
+          tokenUrl = 'https://www.arcgis.com/sharing/rest/generateToken';
+          userURL = 'https://www.arcgis.com/sharing/rest/community/users/'+$('#user').val()+'?f=json&token=';
+        }
+
+        $.ajax({
+          type: 'POST',
+          url: tokenUrl,
+          dataType: 'json', 
+          data: {
+            f: "json",
+            username: $('#user').val(),
+            password: $('#pass').val(),
+            client: "referrer",
+            referer: window.location.hostname,
+            expiration: 21600
+
+          },
+          success: function(data){
+            if(data.error){
+              $('#message').html(data.error.message);
+              $('table').hide();
+              $('#message').show();
+              return 0;
+            }else{
+              $('#message').empty();
+              $('#message').hide();
+            }
+            
+            var url = userURL + encodeURIComponent(data.token);
+            
+            $.getJSON(url, function(data){
+            
+              if(data.error){
+                $('#message').html(data.error.message);
+                return 0;
+              }
+              $('table').show();
+              $('#results').empty();
+              data.groups.forEach(function(elem, i){
+                $('#results').append('<tr><td>'+elem.title+'</td><td>'+elem.id+'</td>');
+              });
+            });
+            
+          },
+          error: function(XMLHttpRequest, textStatus, errorThrown) { 
+            $('#message').html('Status: ' + textStatus + '<br>' + 'Check the browser console for more information or open an issue');
+            $('#message').show();
+            $('table').hide();
+          }
+        });
+      });
+    });
+  }catch(e){
+    $('#message').html(e);
+  };
+  </script>
+}
+</head>
+
+<body>
+<div class="container">
+  <h1>Group ID Finder for ArcGIS</h1>
+  <form>
+    
+    <div class="form-group">
+      <label for="type">Where is your organization hosted?</label>
+      <select id="type" class="form-control">
+        <option value="agol">ArcGIS Online</option>
+        <option value="portal">Portal for ArcGIS</option>
+      </select>
+    </div>
+
+    <div class="form-group" id="portal_url_field">
+      <label for="portal_url">Specify the server and port where your Portal for ArcGIS</label>
+      <input id="portal_url" type="text" class="form-control" placeholder="Ex. https://host:port">
+    </div>
+
+    <p>Introduce user's credentials and we will show you the IDs and Names of the groups he belongs:</p>
+    <div class="form-group">
+      <label for="user">User</label>
+      <input id="user" type="text" class="form-control">  
+    </div>
+
+    <div class="form-group">
+      <label for="pass">Password</label>
+      <input id="pass" type="password" class="form-control">  
+    </div>
+
+    <button type="submit" class="btn btn-primary btn-block">Query</button>
+    <div id="message" class="text-center">
+    </div>
+    <table class="table table-striped">
+      <thead> 
+        <tr> <th>Group name</th><th>ID</th> </tr> 
+      </thead>
+      <tbody id="results"></tbody>
+    </table>
+
+  </form>
+</div>
+</body>
+</html>

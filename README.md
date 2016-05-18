@@ -1,382 +1,137 @@
-# ArcNode
-Node module to work with ArcGIS Online and ArcGIS Server.
+#arc-notifier
+Arc-Notifier es un script escrito en NodeJS que permite enviar notificaciones vía email cuando un registro de un servicio publicado en ArcGIS Online o Portal for ArcGIS cambia de estado. El principal propósito de este script es ayudar a crear un sistema de notificaciones para flujos de trabajo como podemos ver en este vídeo de demostración (~16min):
 
-## How to install it
+[<img src="https://i.ytimg.com/vi/reX7ZTi2Alo/hqdefault.jpg">](https://www.youtube.com/watch?v=reX7ZTi2Alo)
 
-Just write this in your prompt:
-```npm install --save arc-node```
+> **Nota**: Esta desmotración se ha realizado sobre una organización de ArcGIS Online
 
-And you are ready to go, just instantiate the object like this:
-```javascript
-var ArcNode = require('arc-node'),
-    service = new ArcNode(<config object>);
+# Video tutorial de instalación y configuración
+En este otro vídeo (~19min) podemos ver un ejemplo de cómo configurar el script con una organización de Portal for ArcGIS:
+
+[<img src="https://i.ytimg.com/vi/8Bwt25WbKjM/hqdefault.jpg">](https://www.youtube.com/watch?v=8Bwt25WbKjM)
+
+# Manual 
+
+## Instalación
+
+Para instalar este script es necesario tener [Node.js](https://nodejs.org/en/) con [NPM](http://blog.npmjs.org/post/85484771375/how-to-install-npm) instalado. A continuación tan solo hace falta descargar el código y hacer:
+
+```bash
+npm install
 ```
-Check here the description of the *[\<config object\>](/examples/config.json.sample)* parameter.
 
-## Documentation
-When you have instantiate the service you will have available methods to:
-* [Get a new token](#get-a-new-token)
-* [Check if a feature service exists](#check-if-a-feature-service-exists)
-* [Create an empty feature service](#create-an-empty-feature-service)
-* [Add layers to a feature service](#add-layers-to-a-feature-service)
-* [Add features to a layer](#add-features-to-a-layer)
-* [Find address candidates](#find-address-candidates)
-* [Export a webmap](#export-a-webmap)
+## Configuración
 
-### Get a new token
-**Description**: Gets a new valid token.<br>
-**Return**: a [deferred](http://dojotoolkit.org/reference-guide/1.10/dojo/Deferred.html) object. When it's resolved: it returns the [ArcGIS REST API response](http://resources.arcgis.com/en/help/arcgis-rest-api/index.html#/Generate_Token/02r3000000m5000000/#GUID-D63FBD54-1269-4A92-8AAB-BDE5B0393F28).<br> 
-**Example**: [See full example](/examples/getToken.js)
+### Configuración del servicio
 
-<table>
-<tr>
-  <td><strong>Name</strong></td>
-  <td>getToken(options)</td>
-</tr>
-<tr>
-  <td><strong>Options</strong><br>(JSON object)</td>
-  <td>
-  <table>
-    <tr>
-      <td><strong>Name</strong></td>
-      <td><strong>Type</strong></td>
-      <td><strong>Required?</strong></td>
-      <td><strong>Description</strong></td>
-    </tr>
-    <tr>
-      <td>client</td>
-      <td>String</td>
-      <td>No</td>
-      <td>The client type that will be granted access to the token. Only the referer value is supported.  In the Generate Token page, the referer is specified in the Webapp URL field, for example: referer=http://myserver/mywebapp</td>
-    </tr>
-    <tr>
-      <td>referer</td>
-      <td>String</td>
-      <td>No</td>
-      <td>Default value: arcgis.com | The base URL of the client application that will use the token to access the Portal for ArcGIS API. In the Generate Token page, the referer is specified in the Webapp URL field, for example: referer=http://myserver/mywebapp.</td>
-    </tr>
-    <tr>
-      <td>expiration</td>
-      <td>Integer</td>
-      <td>No</td>
-      <td>The token expiration time in minutes. The default and maximum is 15 days.</td>
-    </tr>
-    </table>
-    </td>
-</tr>
-</table>
+Para el correcto funcionamiento el servicio alojado en *ArcGIS Online* o *ArcGIS server* tiene que:
 
-**How to use it**
-```javascript
-//Get a token valid for 60 minutes
-service.getToken({
-    expiration: 60
-}).then(function(response){
-    console.log("response: ", response);
-});
-```
-----------------
-### Check if a feature service exists
-**Description**: Check if a feature service with a given name exists.<br>
-**Return**: a [deferred](http://dojotoolkit.org/reference-guide/1.10/dojo/Deferred.html) object. When it's resolved: it returns the [ArcGIS REST API response](http://resources.arcgis.com/en/help/arcgis-rest-api/index.html#//02r300000076000000#GUID-916B5F3A-FCF7-49BE-BC01-5C8DB161F2EC).<br> 
-**Example**: [See full example](/examples/checkIfFSExists.js)
+1. Estar protegido (no accesible públicamente)
+2. Tener habilitado la opción *[editor tracking](http://server.arcgis.com/en/server/10.3/publish-services/windows/editor-tracking-for-feature-services.htm)*.
+3. Y contener estos tres campos editables:
+  * **Estado** de tipo *esriFieldTypeString*
+  * **last_emailed_user** de tipo *esriFieldTypeString*
+  * **last_emailed_date** de tipo *esriFieldTypeDate*
 
-<table>
-<tr>
-  <td><strong>Name</strong></td>
-  <td>checkIfFSExists(options?)</td>
-</tr>
-<tr>
-  <td><strong>Options</strong><br>(JSON object)</td>
-  <td>
-    <table>
-    <tr>
-      <td><strong>Name</strong></td>
-      <td><strong>Type</strong></td>
-      <td><strong>Required?</strong></td>
-      <td><strong>Description</strong></td>
-    </tr>
-    <tr>
-      <td>serviceName</td>
-      <td>String</td>
-      <td>Yes</td>
-      <td>Name of the service</td>
-    </tr>
-    </table>
-  </td>
-</tr>
-</table>
+Se han compartido en la [carpeta data](https://github.com/esri-es/ArcNotifier/tree/master/data) del repositorio una base de datos de ejemplo en dos formatos: [GDB](https://github.com/esri-es/ArcNotifier/raw/master/data/GDB_SAMPLE.gdb.zip) y [esquema XML](https://raw.githubusercontent.com/esri-es/ArcNotifier/master/data/XML_GDB.XML)
 
-**How to use it**
-```javascript
-service.checkIfFSExists( { serviceName: "Service name" } ).then(function(response){
-  console.log("response = ", response);
-}, function(e){
-  console.log("Error: ", e);
-});
-```
-----------------
-### Create an empty feature service
-**Description**:  it creates a feature service with no layers in it<br>
-**Return**: a [deferred](http://dojotoolkit.org/reference-guide/1.10/dojo/Deferred.html) object. When it's resolved: it returns the [ArcGIS REST API response](http://resources.arcgis.com/en/help/arcgis-rest-api/index.html#//02r30000027r000000#GUID-0BC44A32-475E-4F30-A8DE-2812FA88A070).<br> 
-**Example**: [See full example](/examples/createFeatureService.js)
+### Fichero de configuración
 
-<table>
-<tr>
-  <td><strong>Name</strong></td>
-  <td>createFeatureService(options?)</td>
-</tr>
-<tr>
-  <td><strong>Options</strong><br>(JSON object)</td>
-  <td>
-    <table>
-    <tr>
-      <td><strong>Name</strong></td>
-      <td><strong>Type</strong></td>
-      <td><strong>Required?</strong></td>
-      <td><strong>Description</strong></td>
-    </tr>
-    <tr>
-      <td>name</td>
-      <td>String</td>
-      <td>Yes</td>
-      <td>Name of the service</td>
-    </tr>
-    </table>
-  </td>
-</tr>
-</table>
+Para configurar el servicio tendremos que crear un fichero llamado **config.json** en la carpeta raíz. Para facilitar esta tarea se han creado dos ficheros de ejemplo **[config_agol.sample.json](https://github.com/esri-es/ArcNotifier/blob/master/config_agol.sample.json)** y **[config_portal.sample.json](https://github.com/esri-es/ArcNotifier/blob/master/config_portal.sample.json)**	que contienen un esqueleto de la estructura del fichero para configurar el servicio contra *ArcGIS Online* y *Portal for ArcGIS* respectivamente.
 
-**How to use it**
-```javascript
-service.createFeatureService({name: "My empty feature service"}).then(function(response){
-  console.log("response = ", response);
-}, function(e){
-  console.log("Error: ", e);
-});
-```
-----------------
-### Add layers to a feature service
-**Description**:  it add layers to a service based on the definition of each layer.<br>
-**Return**: a [deferred](http://dojotoolkit.org/reference-guide/1.10/dojo/Deferred.html) object. When it's resolved: it returns the [ArcGIS API REST response](http://resources.arcgis.com/en/help/arcgis-rest-api/index.html#/AddToDefinitionFeatureService/02r300000230000000/#GUID-2C31B4E2-8112-4872-88F8-71BC3B74B6DD).<br> 
-**Example**: [See full example](/examples/addLayerToFS.js)
+Veamos a continuación cada uno de los parámetros que incluyen estos ficheros.
 
-<table>
-<tr>
-  <td><strong>Name</strong></td>
-  <td>addLayersToFS(options?)</td>
-</tr>
-<tr>
-  <td><strong>Options</strong><br>(JSON object)</td>
-  <td>
-    <table>
-    <tr>
-      <td><strong>Name</strong></td>
-      <td><strong>Type</strong></td>
-      <td><strong>Required?</strong></td>
-      <td><strong>Description</strong></td>
-    </tr>
-    <tr>
-      <td>service</td>
-      <td>String</td>
-      <td>Yes</td>
-      <td>URL of the service where the layers is going to be added</td>
-    </tr>
-    <tr>
-      <td>layers</td>
-      <td>Array of JSON Objects</td>
-      <td>Yes</td>
-      <td>Array of objects describing the layers (<a href="http://resources.arcgis.com/en/help/arcgis-rest-api/index.html#//02r300000230000000#GUID-63F2BD08-DCF4-485D-A3E6-C7116E17DDD8">see an example</a>). It can be generated using the <a href="#create-a-json-object-describing-a-layer">createLayer() method</a></td>
-    </tr>
-    </table>
-  </td>
-</tr>
-</table>
+* **organization**: contiene 
 
-**How to use it**
-```javascript
-service.addLayersToFS({
-  service: response.encodedServiceURL,
-  layers: [layer]
-}).then(function(response){
-  console.log("response: ", response);
-}, function(e){
-  console.log("Error: ", e);
-});
-```
-----------------
+  * **username**: nombre de usuario con permisos de edición sobre el servicio (recomendado: administrador)
+  * **password**: contraseña del mismo
+  * **acount_id** (sólo necesario en ArcGIS Online): ID de la cuenta, si la URL del servicio es ```http://services.arcgis.com/Q6ZFRRvMTlsTTFuP/arcgis/rest/services/...``` el ID sería **"Q6ZFRRvMTlsTTFuP"** 
+  * **root_url**: en caso de usar ArcGIS Online sería **"www.arcgis.com"**, sino el dominio donde se encuentra alojado su Portal.
+  * **services_url**: en caso de usar ArcGIS Online sería **"services.arcgis.com"**, sino el dominio donde se encuentra alojado su Portal.
+  * **arcgisPath** (sólo necesario en Portal for ArcGIS): **"arcgis"** 
+  * **portalPath** (sólo necesario en Portal for ArcGIS): **"portal"** 
+  * **port**: en caso de usar ArcGIS Online **443**, en caso de Portal **7443**
+  * **allowSelfSigned**: si el Portal está firmado con un certificado SSL de una autoridad no certificada (sólo necesario en Portal for ArcGIS)
+  * **groups**: objeto con tantos pares clave/valor como grupos haya en nuestro flujo de trabajo. Esta asociación se realiza para facilitar la lectura del flujo que crearemos posteriormente y al mismo tiempo garantizar que aunque cambie el nombre del grupo el flujo seguirá funcionando correctamente. Puede usar la siguiente herramienta para obtener los [identificadores de los grupos a los que pertenece un usuario](https://esri-es.github.io/ArcNotifier/get-group-id.html).
 
-### Add features to a layer
-**Description**:  add features to a feature layer<br>
-**Return**: a [deferred](http://dojotoolkit.org/reference-guide/1.10/dojo/Deferred.html) object. When it's resolved: it return de [ArcGIS API REST response](http://resources.arcgis.com/en/help/arcgis-rest-api/index.html#/Add_Features/02r30000010m000000/#GUID-6EDF1F16-5716-4B4D-9975-47FEA30AA359).<br> 
-**Example**: [See full example](/examples/addFeatures.js)
+* **timeScheduler**: especifica la frecuencia con la que se comprobarán las actualizaciones en [formato Cron](https://en.wikipedia.org/wiki/Cron). Por ejemplo: ```"*/15 * * * * *"``` representa cada 15 segundos.
+  
+* **portal_item**: ID del item donde se encuentra el servicio
 
-<table>
-<tr>
-  <td><strong>Name</strong></td>
-  <td>addFeatures(options?)</td>
-</tr>
-<tr>
-  <td><strong>Options</strong><br>(JSON object)</td>
-  <td>
-    <table>
-    <tr>
-      <td><strong>Name</strong></td>
-      <td><strong>Type</strong></td>
-      <td><strong>Required?</strong></td>
-      <td><strong>Description</strong></td>
-    </tr>
-    <tr>
-      <td>serviceName</td>
-      <td>String</td>
-      <td>Yes</td>
-      <td>Service name where the layer is hosted</td>
-    </tr>
-    <tr>
-      <td>layer</td>
-      <td>Integer</td>
-      <td>Yes</td>
-      <td>Layer index where the features want to be added</td>
-    </tr>
-    <tr>
-      <td>features</td>
-      <td>Array of features</td>
-      <td>Yes</td>
-      <td>Array of <a href="http://resources.arcgis.com/en/help/arcgis-rest-api/index.html#//02r3000000n8000000">features objects</a></td>
-    </tr>
-    </table>
-  </td>
-</tr>
-</table>
+* **layer**: número entero que representa el índice de la capa del servicio que contiene los registros/incidencias
+  
+* **smtp_server**: servidor SMTP que se usará para el envío de correos
+  * **user**: usuario de correo
+  * **password**: password del usuario
+  * **host**: direción del servidor SMTP (IP/Dominio)
+  * **port**: puerto
+  * **tls**: booleano indicando si usa TLS o no.
+  
+* **flow**: este objeto define qué cambios de estado provocarán el envío de notificaciones, a quién, y qué se enviará.
 
-**How to use it**
-```javascript
-var data = [{
-    "attributes":{
-        "name": "Feature name"
-    },
-    "geometry": {
-        "x": -3,
-        "y": 40,
-        "spatialReference": {"wkid" : 4326}
-    }
+### Definición de un flujo de trabajo
+La configuración del flujo se hace a través del objeto **flow**, este objeto contiene por cada grupo de la organización los estados que servirán de disparadores del siguiente modo:
+````javascript
+"flow":{
+ "nombre_grupo_1":{
+  "estado_disparador_1":{
+   ... detalles de la notificación...
+  },
+  "estado_disparador_2":{
+   ... detalles de la notificación...
   }
-  // Add as many features as you want
-];
+ }
+````
+De este modo se indica que cuando un usuario perteneciente al *nombre_grupo_1* añada o modifique un registro en el servicio que tenga alguno de los estados indicados (*estado_disparador_1* o *estado_disparador_2*) se lanzará la notificación correspondiente.
 
-service.addFeatures({
-    serviceName: "Your service name",
-    layer: 0, //<layer index, Ex: 0, 1, 2, ...>
-    features: data
-}).then(function(response){
-    console.log("response = ", response);
-},function(e){
-    console.log("Error: ", e);
-});
+Veamos un ejemplo real:
+
+````javascript
+"flow":{
+ "policia": {
+   "INICIADO": {
+     "from": "Sistema automático de notificaciones <script@arcnotifier.es>",
+     "to": "Departamento de mantenimiento <personal@mantenimiento.es>",
+     "subject": "Aviso: Nuevo expediente abierto",
+     "text": "Se ha abierto un nuevo expediente con el nº asignado ${OBJECTID}.\nhttp://www.myapp.com/app/index.html?id=${OBJECTID}"
+   },
+   "PENDIENTE OIT": {
+     "from": "Sistema automático de notificaciones <script@arcnotifier.es>",
+     "to": "Oficina de Información Territorial <personal@oit.es>",
+     "subject": "Aviso: Expediente validado",
+     "text": "Policia confirma que el expediente ${OBJECTID} ha sido subsanado correctamente por mantenimiento \nhttp://www.myapp.com/app/index.html?id=${OBJECTID}"
+   }
+ },
+ "mantenimiento": {
+   "SUBSANADO": {  
+     "from": "Sistema automático de notificaciones <script@arcnotifier.es>",
+     "to": "Departamento de policía <personal@policia.es>",
+     "subject": "Aviso: Expediente subsanado",
+     "text": "El expediente ${CODIGO} ha sido subsanado por mantenimiento ver enlace http://www.myapp.com/app/index.html?id=${OBJECTID}"
+   }
+ }
+}
 ```
-----------------
+En este ejemplo vemos que el sistema enviará las siguientes notificaciones:
+* Cuando un usuario del grupo **policia** añada o modifique un registro y lo deje en estado **INICIADO** o **PENDIENTE OIT**, en función del estado la notificación irá dirigido a un destinatario distinto:
+ * **INICIADO**: se le enviará a **personal@mantenimiento.es** (que podría ser una lista de correo) de forma que todo el departamento de mantenimiento tenga constancia de la incidencia. El correo tendría el título y el cuerpo indicados en las propiedades del objeto.
+ * **PENDIENTE OIT**: se le enviará a **personal@oit.es** con el título y el cuerpo indicados.
+* Cuando un usuario del grupo **mantenimiento** añada o modifique un registro y lo deje en estado **SUBSANADO** se le enviará una notificación a **personal@policia.es**.
 
-### Find address candidates
-**Description**:  find xy locations for an address<br>
-**Return**: a [deferred](http://dojotoolkit.org/reference-guide/1.10/dojo/Deferred.html) object. When it's resolved: it return de [ArcGIS API REST response](http://resources.arcgis.com/en/help/arcgis-rest-api/index.html#/WorldGeocodingService/02r30000027s000000/).<br> 
-**Example**: [See full example](/examples/findAddressCandidates.js)
+> **IMPORTANTE**: el nombre de los estados debe coincidir exáctamente con el valor que aloje el servicio (mayúsculas, minúsculas y espacios incluido), al igual que los grupos de los grupos con los especificados en el campo **groups**.
 
-<table>
-<tr>
-  <td><strong>Name</strong></td>
-  <td>findAddressCandidates(options?)</td>
-</tr>
-<tr>
-  <td><strong>Options</strong><br>(JSON object)</td>
-  <td>
-    <table>
-    <tr>
-      <td><strong>Name</strong></td>
-      <td><strong>Type</strong></td>
-      <td><strong>Required?</strong></td>
-      <td><strong>Description</strong></td>
-    </tr>
-    <tr>
-      <td>address</td>
-      <td>String</td>
-      <td>Yes</td>
-      <td>The address</td>
-    </tr>
-    </table>
-  </td>
-</tr>
-</table>
-
-**How to use it**
-```javascript
-service.findAddressCandidates({
-    address: "Emilio muñoz 35, madrid"
-}).then(function(response){
-    console.log("response: ", JSON.stringify(response, null, "\t"));
-});
+## Ejecución y reinicio
+Accedemos al directorio donde se encuentra el script y ejecutamos:
 ```
-----------------
-
-### Export a webmap
-**Description**:  generate a static image from a webmap object
-**Return**: a [deferred](http://dojotoolkit.org/reference-guide/1.10/dojo/Deferred.html) object. When it's resolved: it return de [ArcGIS API REST response](https://sampleserver6.arcgisonline.com/arcgis/rest/services/Utilities/PrintingTools/GPServer/Export%20Web%20Map%20Task).<br> 
-**Example**: [See full example](/examples/ExportWebMapTask.js)
-
-<table>
-<tr>
-  <td><strong>Name</strong></td>
-  <td>ExportWebMapTask(options?)</td>
-</tr>
-<tr>
-  <td><strong>Options</strong><br>(JSON object)</td>
-  <td>
-    <table>
-    <tr>
-      <td><strong>Name</strong></td>
-      <td><strong>Type</strong></td>
-      <td><strong>Required?</strong></td>
-      <td><strong>Description</strong></td>
-    </tr>
-    <tr>
-      <td>webmap</td>
-      <td>JSON Object</td>
-      <td>Yes</td>
-      <td>A <a href="http://resources.arcgis.com/en/help/arcgis-web-map-json/index.html#/Web_map_data/02qt0000000q000000/">webmap object</a></td>
-    </tr>
-    </table>
-  </td>
-</tr>
-</table>
-
-**How to use it**
-```javascript
-var webmap = ArcJSON.exportableWebmap({
-    "mapOptions": {
-        "extent": {
-            "xmin": -422228.3214312691,
-            "ymin": 4921137.768125086,
-            "xmax": -396125.07627191657,
-            "ymax": 4928896.126496022
-        }
-    },
-    "operationalLayers": [
-        {
-            "opacity": 1,
-            "url": "http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer"
-        }
-    ],
-    "exportOptions": {
-        "outputSize": [
-            600,
-            300
-        ],
-        "dpi": 192
-    }
-});
-
-service.ExportWebMapTask({
-    webmap: webmap
-}).then(function(response){
-    console.log("response: ", JSON.stringify(response, null, "\t"));
-});
+node index.js
 ```
+
+En caso de que fuese necesario reiniciarlo tan sólo tenemos que para el script con Ctrl + C y volver a ejecutarlo.
+Ctrl
+
+## FAQ
+
+Para dudas y sugerencias puede dirigirse a los [issues del proyecto](https://github.com/esri-es/ArcNotifier/issues).
+
+Si al hacer ```npm install``` se produce en error ```Error: ENOENT, stat 'C:\Users\<user>\AppData\Roaming\npm'``` puedes resolverlo [como se indica en este enlace](https://github.com/npm/npm/wiki/Troubleshooting#error-enoent-stat-cusersuserappdataroamingnpm-on-windows-7).
+

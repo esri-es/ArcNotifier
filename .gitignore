@@ -1,4 +1,5 @@
+.idea/
+*.iml
+examples/config.json
 node_modules
-config_agol.json
-config_portal.json
-config.json
+test.js

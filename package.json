@@ -23,7 +23,8 @@
   },
   "homepage": "https://github.com/esri-es/ArcNode",
   "dependencies": {
-    "node-promise": "^0.5.12",
-    "arcgis-json-objects": "0.0.6"
+    "arcgis-json-objects": "0.0.6",
+    "colors": "^1.1.2",
+    "node-promise": "^0.5.12"
   }
 }

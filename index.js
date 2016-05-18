@@ -52,7 +52,7 @@ service.getToken().then(function(response){
     'token': response.token,
     'domain': config.organization.root_url + ':' + config.organization.port + '/' + config.organization.arcgisPath
   });
-
+  
   arcgis.item(config.portal_item)
     .then(function (item) {
       
@@ -62,9 +62,8 @@ service.getToken().then(function(response){
         process.exit(1);
       }else{
         
-        feature_service = item.url.replace('http:','https:') + '/' + config.layer;
-
-        //console.log('feature_service=',feature_service);
+        //feature_service = item.url.replace('http:','https:') + '/' + config.layer;
+        feature_service = item.url + '/' + config.layer;
       }
     });
 });
@@ -77,13 +76,13 @@ try {
 
   //Get a token valid for 21600 minutes
   service.getToken().then(function(response){
-
     // Recover new entities which hasn't been closed and has been modified
+
     service.getFeatures({
       serviceUrl: feature_service,
       query: {
           f: 'json',
-          where: '(last_edited_date > last_emailed_date OR last_emailed_date is null) AND created_date > \'4/1/2016\' AND Estado <> \'FINALIZADO\'',
+          where: '(last_edited_date > last_emailed_date OR last_emailed_date is null) AND created_date > \'27/1/2016\' AND Estado <> \'FINALIZADO\'',
           outFields: '*',
       }
     }).then(function(res){
@@ -93,7 +92,7 @@ try {
           (function(i){
             
             var f = res.features[i].attributes;
-			var geo = res.features[i].geometry;
+            var geo = res.features[i].geometry;
             
             // Get user info
             service.getUserInfo({

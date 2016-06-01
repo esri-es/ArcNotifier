@@ -7,6 +7,8 @@ var config  = require('./config/_config'),
     ArcNode = require('arc-node'),
     CronJob = require('cron').CronJob,
     unirest = require('unirest'),
+    qs = require('qs'),
+
 
     service = new ArcNode(config.organization),
     util = new Utils(config),
@@ -23,7 +25,7 @@ console.log = function(message,param){
   }
 };
 
-console.log("Starting process...".green);
+console.log("\nChecking configuration...".green);
 
 service.getToken().then(function(response){
   arcgis = ArcGIS({
@@ -44,38 +46,36 @@ service.getToken().then(function(response){
       feature_service = item.url + '/' + config.layer;
       console.log("\nFeature service:".green, feature_service);
 
-      var req = unirest("GET", feature_service);
+      var admin_service_url = item.url.replace("/rest/","/rest/admin/");
+      console.log("\nAdmin service url:".green, admin_service_url);
+
+      var req = unirest("GET", admin_service_url);
 
       req.query({
         "f": "json",
+        "status": "json",
         "token": response.token
       });
 
       //Checking if editor tracking and fields are properly configured
       req.end(function (res) {
         if (res.error) throw new Error(res.error);
-        var i = 0, statePresent = false;
+        var i = 0, requiredFieldsPresent = 0, requiredFields = ["estado", "last_emailed_user", "last_emailed_date"];
 
         res.body = JSON.parse(res.body);
 
+        var fields = res.body.layers[config.layer].fields;
         do{
-          if(res.body.fields[i].name === 'Estado'){
-            statePresent = true;
+          if(requiredFields.indexOf(fields[i].name.toLowerCase()) !== -1){
+            requiredFieldsPresent++;
           }
           i++;
-        }while(statePresent === false && i < res.body.fields.length);
+        }while(requiredFieldsPresent < 3 && i < fields.length);
 
-        var fieldInfo = {
-      		"creationDateField": "created_date",
-      		"creatorField": "created_user",
-      		"editDateField": "last_edited_date",
-      		"editorField": "last_edited_user"
-      	};
-
-        if(res.body.editFieldsInfo !== fieldInfo){
-          console.log("\nError: ".red, 'Editor tracking is not properly configured');
-        }else if(!statePresent){
-          console.log("\nError: ".red, 'Editor Estado field is nos present');
+        if(requiredFieldsPresent !== 3){
+          console.log("\nError: ".red, 'Some required fields are not present -> ' + requiredFields.join(', '));
+        }else if(res.body.editorTrackingInfo.enableEditorTracking !== true){
+          console.log("\nError: ".red, 'Editor tracking is not enabled');
         }else{
           console.log('\nService is properly configured'.cyan);
           cronStart();
@@ -99,17 +99,21 @@ function cronStart(){
           serviceUrl: feature_service,
           query: {
             f: 'json',
-            where:  '(last_edited_date > last_emailed_date OR last_emailed_date is null) ' +
-                    'AND created_date > \'5/18/2016\' ' +
-                    'AND Estado <> \'FINALIZADO\'',
+            where:  '(last_edited_date > last_emailed_date OR last_emailed_date is null) ',
             outFields: '*',
           }
         };
-        console.log(options)
+
+        if(config.whereFilter){
+          options.query.where += 'AND ' + config.whereFilter;
+        }
+
         service.getFeatures(options).then(function(res){
           if(res.error && res.error.code === 400){
             console.log("\nError: ".red, res.error.message);
-            console.log("\nQuery: ".red, options.query);
+            //console.log("\nQuery: ".red, options.query);
+            options.query.f = "html";
+            console.log("\nQuery: ".red, options.serviceUrl + "/query?" + qs.stringify(options.query));
             return 0;
           }
 

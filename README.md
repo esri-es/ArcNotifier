@@ -4,6 +4,7 @@ Arc-Notifier es un script escrito en NodeJS que permite enviar notificaciones v�
 [<img src="https://i.ytimg.com/vi/reX7ZTi2Alo/hqdefault.jpg">](https://www.youtube.com/watch?v=reX7ZTi2Alo)
 
 > **Nota**: Esta desmotración se ha realizado sobre una organización de ArcGIS Online
+> **Nota 2**:
 
 # Video tutorial de instalación y configuración
 En este otro vídeo (~19min) podemos ver un ejemplo de cómo configurar el script con una organización de Portal for ArcGIS:
@@ -27,7 +28,7 @@ npm install
 Para el correcto funcionamiento el servicio alojado en *ArcGIS Online* o *ArcGIS server* tiene que:
 
 1. Estar protegido (no accesible públicamente)
-2. Tener habilitado la opción *[editor tracking](http://server.arcgis.com/en/server/10.3/publish-services/windows/editor-tracking-for-feature-services.htm)*.
+2. Tener habilitado la opción *[editor tracking](http://server.arcgis.com/en/server/10.3/publish-services/windows/editor-tracking-for-feature-services.htm)* (**importante**: para que el tracking funcione correctamente en un servicio alojado en ArcGIS Online el servicio debe de estar publicado en ArcGIS Online, no puede estar en una instancia de ArcGIS Server local).
 3. Y contener estos tres campos editables:
   * **Estado** de tipo *esriFieldTypeString*
   * **last_emailed_user** de tipo *esriFieldTypeString*

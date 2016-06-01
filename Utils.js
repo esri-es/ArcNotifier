@@ -8,6 +8,7 @@ var emailjs = require('./node_modules/emailjs/email');
 module.exports = function Utils(config){
   var that = this;
   this.config = config;
+  this.emailsInProgress = [];
 
   // Gets an ID and returns a human-readable-string
   this.getGroupName= function(str){
@@ -22,10 +23,15 @@ module.exports = function Utils(config){
   this.parseMail = function(email, f, geo){
     var tmp = email;
     for(var property in f){
-      if (f.hasOwnProperty(property)) { tmp = tmp.replace('${'+property+'}', f[property]); }
+      if (f.hasOwnProperty(property)) {
+        do{
+          tmp = tmp.replace('${'+property+'}', f[property]);
+        }while(tmp.indexOf('${'+property+'}') !== -1);
+      }
     }
     tmp = tmp.replace('#{X}', geo['x']);
     tmp = tmp.replace('#{Y}', geo['y']);
+
     return tmp;
   };
 
@@ -38,14 +44,14 @@ module.exports = function Utils(config){
 
     var userGroup, last_user_group_name, email, n, updateFeature, f, geo;
 
-    f = objToCase(obj.res.features[obj.i].attributes, 'lower');
+    f = objToCase(obj.res.features[obj.i].attributes, 'upper');
 
     geo = obj.res.features[obj.i].geometry;
     userGroup = config.flow;
 
     // Get user info
     obj.service.getUserInfo({
-      username: f.last_edited_user
+      username: f.LAST_EDITED_USER
     }).then(function(res){
       var hasTrigger = false;
 
@@ -55,8 +61,8 @@ module.exports = function Utils(config){
         // Is a group with triggers
         if(last_user_group_name){
 
-          if(userGroup[last_user_group_name].hasOwnProperty(f['estado'])){
-            console.log('\nInfo: '.yellow + 'Entity ' + f.objectid + ': ' + f.last_edited_user + ' belongs '.green +'to group ' + last_user_group_name + ' which has a trigger for the state ' + f['estado']);
+          if(userGroup[last_user_group_name].hasOwnProperty(f['ESTADO'])){
+            console.log('\nInfo: '.yellow + 'Entity ' + f.OBJECTID + ': ' + f.LAST_EDITED_USER + ' belongs '.green +'to group ' + last_user_group_name + ' which has a trigger for the state ' + f['ESTADO']);
             hasTrigger = true;
             break;
           }
@@ -65,16 +71,21 @@ module.exports = function Utils(config){
 
       // If user belongs to a group which has a trigger for current state
       if(hasTrigger){
-        var toField = that.extractEmails(userGroup[last_user_group_name][f['estado']].to);
+        var toField = that.extractEmails(userGroup[last_user_group_name][f['ESTADO']].to);
 
         //TODO: toFiled is not an email is the name of an attributes which should contain an username of this organization
         //if (toField.indexOf('@') === -1){
         //  toField = getOwnerEmail('owner');
         //}
 
-        if(toField !== f.last_emailed_user){
+        if(toField !== f.LAST_EMAILED_USER && that.emailsInProgress.indexOf(f.OBJECTID) === -1){
 
-          email = userGroup[last_user_group_name][f['estado']];
+          // Avoid send emails twice because of the async. calls
+          that.emailsInProgress.push(f.OBJECTID);
+          console.log("Block: ",f.OBJECTID)
+          console.log("Blocked: ",that.emailsInProgress)
+
+          email = userGroup[last_user_group_name][f['ESTADO']];
           email.attachment = [{ data: that.parseMail(email.text, f, geo), alternative: true}];
 
           // send the message and get a callback with an error or details of the message that was sent
@@ -85,14 +96,12 @@ module.exports = function Utils(config){
             if(err){
               console.log("\nError:".red, err);
             }else{
-              f.last_emailed_date = Date.now();
-              f.last_emailed_user = toField;
+              f.LAST_EMAILED_DATE = Date.now();
+              f.LAST_EMAILED_USER = toField;
 
               updateFeature = { 'attributes': f };
 
-              console.log('\nEmail sent to:'.green, f.last_emailed_user);
-
-              updateFeature = { 'attributes': objToCase(f, 'upper') };
+              console.log('\nEmail sent to:'.green, f.LAST_EMAILED_USER);
 
               obj.service.updateFeatures({
                 serviceUrl: obj.feature_service,
@@ -107,13 +116,27 @@ module.exports = function Utils(config){
                 }
               });
             } // endif
+            var pos = that.emailsInProgress.indexOf(f.OBJECTID);
+            if(pos !== -1){
+              try{
+              (setTimeout(function(pos){
+                that.emailsInProgress.splice(pos, 1);
+                console.log("Unblock: ",f.OBJECTID)
+                console.log("Blocked: ",that.emailsInProgress)
+              }, 10000))(pos);
+            }catch(e){
+              console.log("Error:".red, e);
+            }
+
+
+            }
 
           });
         }else{
-          console.log('\nInfo:'.yellow + ' The notification was already sent to: ' + f.last_emailed_user);
+          console.log('\nInfo:'.yellow + ' The notification was already sent to: ' + f.LAST_EMAILED_USER);
         }
       }else{
-        console.log('\nInfo: '.yellow + 'Entity ' + f.objectid + ': ' + f.last_edited_user + ' does not belongs '.red + 'to a group with the state: ' + f['estado']);
+        console.log('\nInfo: '.yellow + 'Entity ' + f.OBJECTID + ': ' + f.LAST_EDITED_USER + ' does not belongs '.red + 'to a group with the state: ' + f['ESTADO']);
       }
 
     });

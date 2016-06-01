@@ -1,6 +1,7 @@
 'use strict';
 
-var config  = require('./config/_config'),
+//var config  = require('./config/_config'),
+var config = require("./"+process.argv[2]),
     ArcGIS  = require('arcgis'),
     Utils  = require('./utils.js'),
     colors = require('colors'),
@@ -34,14 +35,15 @@ service.getToken().then(function(response){
   });
   console.log("\nNew access token:".green, ((response.token)? "done": "error"));
 
-  arcgis.item(config.portal_item).then(function (item) {
+  arcgis.item(config.portal_item.trim()).then(function (item) {
     // Checking if feature service is public (if so -> error)
+
     if(item.access === 'public'){
       var itemURL = 'http://' + config.organization.root_url + '/' + config.organization.portalPath + '/home/item.html?id=' + config.portal_item;
       console.log('\nThe item can not public:'.red, itemURL);
-      process.exit(1);
+    }else if(item.type !== 'Feature Service'){
+      console.log('\nThe item type is not "Feature service" it is:'.red, item.type);
     }else{
-
       //feature_service = item.url.replace('http:','https:') + '/' + config.layer;
       feature_service = item.url + '/' + config.layer;
       console.log("\nFeature service:".green, feature_service);
@@ -62,7 +64,12 @@ service.getToken().then(function(response){
         if (res.error) throw new Error(res.error);
         var i = 0, requiredFieldsPresent = 0, requiredFields = ["estado", "last_emailed_user", "last_emailed_date"];
 
-        res.body = JSON.parse(res.body);
+        try{
+          res.body = JSON.parse(res.body);
+        }catch(error){
+          console.log("\nError:".red, error);
+          console.log("res.body=",res.body);
+        }
 
         var fields = res.body.layers[config.layer].fields;
         do{
@@ -72,16 +79,68 @@ service.getToken().then(function(response){
           i++;
         }while(requiredFieldsPresent < 3 && i < fields.length);
 
+        // Checking that exists all fields in the service to fill the emailtemplates
+        var regexp = /.*(\${.*}).*/i,
+            emailTemplate, ocurrence,
+            unExistingFields = [],
+            validTemplate = true;
+
+        for(var f in config.flow){
+          if(config.flow.hasOwnProperty(f)){
+            for(var t in config.flow[f]){
+              if(config.flow[f].hasOwnProperty(t)){
+                emailTemplate = config.flow[f][t].text;
+
+                for(var property in fields){
+                  // Remove multiple ocurrences
+                  emailTemplate = emailTemplate.split('${'+fields[property].name+'}').join('')
+                }
+
+                do{
+                  ocurrence = regexp.exec(emailTemplate);
+                  if(ocurrence){
+                    emailTemplate = emailTemplate.replace(ocurrence[1], '');
+                    if(unExistingFields.indexOf(ocurrence[1]) === -1){
+                      unExistingFields.push(ocurrence[1]);
+                    }
+                  }
+                }while(ocurrence);
+              }
+            }
+          }
+        }
+        if (unExistingFields.length > 0){
+            validTemplate = false;
+        }
+        // End of <Check email templates>
+
+
+        //
+        /*
+        var unExistingVars = [], tmpVar;
+
+        regexp.exec("Policia confirma que el expediente ${OBJECTID} ha sido subsanado c")
+        if()
+        Policia confirma que el expediente ${OBJECTID} ha sido subsanado ${OBJECTIDasdasd}  c
+        */
         if(requiredFieldsPresent !== 3){
           console.log("\nError: ".red, 'Some required fields are not present -> ' + requiredFields.join(', '));
         }else if(res.body.editorTrackingInfo.enableEditorTracking !== true){
           console.log("\nError: ".red, 'Editor tracking is not enabled');
+        //}else if(!validTemplate){
+
         }else{
+          if(!validTemplate){
+            console.log(('\nWarning: Some fields at the email template does not exist in the service -> ' + unExistingFields.join(', ')).bgYellow.black);
+          }
+
           console.log('\nService is properly configured'.cyan);
           cronStart();
         }
       });
     }
+  },function(reason){
+    console.log("\nError getting item: ".red, reason);
   });
 });
 

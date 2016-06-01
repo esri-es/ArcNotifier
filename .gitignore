@@ -3,3 +3,4 @@
 examples/config.json
 node_modules
 test.js
+config/_*

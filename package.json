@@ -25,6 +25,7 @@
   "dependencies": {
     "arcgis-json-objects": "0.0.6",
     "colors": "^1.1.2",
-    "node-promise": "^0.5.12"
+    "node-promise": "^0.5.12",
+    "unirest": "^0.5.0"
   }
 }

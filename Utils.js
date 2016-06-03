@@ -119,14 +119,14 @@ module.exports = function Utils(config){
             var pos = that.emailsInProgress.indexOf(f.OBJECTID);
             if(pos !== -1){
               try{
-              (setTimeout(function(pos){
-                that.emailsInProgress.splice(pos, 1);
-                console.log("Unblock: ",f.OBJECTID)
-                console.log("Blocked: ",that.emailsInProgress)
-              }, 10000))(pos);
-            }catch(e){
-              console.log("Error:".red, e);
-            }
+                (setTimeout(function(pos){
+                  that.emailsInProgress.splice(pos, 1);
+                  console.log("Unblock: ",f.OBJECTID)
+                  console.log("Blocked: ",that.emailsInProgress)
+                }, 10000))(pos);
+              }catch(e){
+                console.log("Error:".red, e);
+              }
 
 
             }

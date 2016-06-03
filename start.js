@@ -2,8 +2,8 @@ const exec = require('child_process').exec,
       colors = require('colors');
 
 var configs = [
-    "config/_config_bolardos.json",
-    "config/_config_senal_codigo.json",
+    "config/_config_bolardos",
+    "config/_config_senal_codigo",
     "config/_config_senal_pintura_lineal"
 ], child;
 //console.log("config=",config)

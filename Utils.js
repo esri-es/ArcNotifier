@@ -60,9 +60,9 @@ module.exports = function Utils(config){
 
         // Is a group with triggers
         if(last_user_group_name){
-
-          if(userGroup[last_user_group_name].hasOwnProperty(f['ESTADO'])){
-            console.log('\nInfo: '.yellow + 'Entity ' + f.OBJECTID + ': ' + f.LAST_EDITED_USER + ' belongs '.green +'to group ' + last_user_group_name + ' which has a trigger for the state ' + f['ESTADO']);
+console.log("last_user_group_name=",last_user_group_name);
+          if(userGroup[last_user_group_name].hasOwnProperty(f['assignmentType'])){
+            console.log('\nInfo: '.yellow + 'Entity ' + f.OBJECTID + ': ' + f.LAST_EDITED_USER + ' belongs '.green +'to group ' + last_user_group_name + ' which has a trigger for the state ' + f['assignmentType']);
             hasTrigger = true;
             break;
           }
@@ -71,7 +71,7 @@ module.exports = function Utils(config){
 
       // If user belongs to a group which has a trigger for current state
       if(hasTrigger){
-        var toField = that.extractEmails(userGroup[last_user_group_name][f['ESTADO']].to);
+        var toField = that.extractEmails(userGroup[last_user_group_name][f['assignmentType']].to);
 
         //TODO: toFiled is not an email is the name of an attributes which should contain an username of this organization
         //if (toField.indexOf('@') === -1){
@@ -85,7 +85,7 @@ module.exports = function Utils(config){
           console.log("Block: ",f.OBJECTID)
           console.log("Blocked: ",that.emailsInProgress)
 
-          email = userGroup[last_user_group_name][f['ESTADO']];
+          email = userGroup[last_user_group_name][f['assignmentType']];
           email.attachment = [{ data: that.parseMail(email.text, f, geo), alternative: true}];
 
           // send the message and get a callback with an error or details of the message that was sent
@@ -136,7 +136,7 @@ module.exports = function Utils(config){
           console.log('\nInfo:'.yellow + ' The notification was already sent to: ' + f.LAST_EMAILED_USER);
         }
       }else{
-        console.log('\nInfo: '.yellow + 'Entity ' + f.OBJECTID + ': ' + f.LAST_EDITED_USER + ' does not belongs '.red + 'to a group with the state: ' + f['ESTADO']);
+        console.log('\nInfo: '.yellow + 'Entity ' + f.OBJECTID + ': ' + f.LAST_EDITED_USER + ' does not belongs '.red + 'to a group with the state: ' + f['assignmentType']);
       }
 
     });

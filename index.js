@@ -62,7 +62,7 @@ service.getToken().then(function(response){
       //Checking if editor tracking and fields are properly configured
       req.end(function (res) {
         if (res.error) throw new Error(res.error);
-        var i = 0, requiredFieldsPresent = 0, requiredFields = ["estado", "last_emailed_user", "last_emailed_date"];
+        var i = 0, requiredFieldsPresent = 0, requiredFields = ["assignmenttype", "last_emailed_user", "last_emailed_date"];
 
         try{
           res.body = JSON.parse(res.body);
@@ -70,11 +70,12 @@ service.getToken().then(function(response){
           console.log("\nError:".red, error);
           console.log("res.body=",res.body);
         }
-
+        console.log("Fields=",res.body.layers[config.layer].fields);
         var fields = res.body.layers[config.layer].fields;
         do{
           if(requiredFields.indexOf(fields[i].name.toLowerCase()) !== -1){
             requiredFieldsPresent++;
+            console.log("Present=",fields[i].name.toLowerCase())
           }
           i++;
         }while(requiredFieldsPresent < 3 && i < fields.length);
@@ -158,13 +159,13 @@ function cronStart(){
           serviceUrl: feature_service,
           query: {
             f: 'json',
-            where:  '(last_edited_date > last_emailed_date OR last_emailed_date is null) ',
+            where:  '',
             outFields: '*',
           }
         };
 
         if(config.whereFilter){
-          options.query.where += 'AND ' + config.whereFilter;
+          options.query.where += config.whereFilter;
         }
 
         service.getFeatures(options).then(function(res){

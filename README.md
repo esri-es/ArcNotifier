@@ -38,6 +38,7 @@ Se han compartido en la [carpeta data](https://github.com/esri-es/ArcNotifier/tr
 
 ### Fichero de configuración
 
+Las instrucciones instrucciones de cómo configurar el servicio se encuentran en el [fichero config/README.md](https://github.com/esri-es/ArcNotifier/tree/master/config). 
 
 ## Ejecución y reinicio
 Accedemos al directorio donde se encuentra el script y ejecutamos:

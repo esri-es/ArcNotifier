@@ -194,14 +194,16 @@ function cronStart(){
           }
           Promise.all(arrayPromises).then(function(datos){
             //console.log(datos);
-            util.processFeature({
-              config: config,
-              service: service,
-              feature_service: feature_service,
-              res: res,
-              i: i,
-              extents: datos
-            });
+            for(var j in res.features){
+              util.processFeature({
+                config: config,
+                service: service,
+                feature_service: feature_service,
+                res: res,
+                i: j,
+                extents: datos[j]
+              });
+            }
           });
         });
       });

@@ -1,32 +1,21 @@
 {
-  "name": "arc-node",
-  "version": "0.3.0",
-  "description": "Node module to work with ArcGIS Online and ArcGIS Server",
-  "main": "ArcNode.js",
+  "name": "arcnotifier",
+  "version": "1.0.0",
+  "description": "Script para envío de notificaciones cuando cambia el atributo 'Estado' de un feature",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "author": "Raul Jimenez <raul.jimenez@esri.es>",
+  "license": "BSD-2-Clause",
+  "dependencies": {
+    "arc-node": "^0.3.0",
+    "arcgis": "^1.0.0-beta.1",
+    "cron": "^1.1.0",
+    "emailjs": "^1.0.4"
+  },
   "repository": {
     "type": "git",
-    "url": "https://github.com/esri-es/ArcNode"
-  },
-  "keywords": [
-    "arcgis",
-    "javascript",
-    "online",
-    "server"
-  ],
-  "author": "Raul Jimenez Ortega <raul.jimenez@esri.es> (http://desarrolladores.esri.es)",
-  "license": "AGPL-3.0",
-  "bugs": {
-    "url": "https://github.com/esri-es/ArcNode/issues"
-  },
-  "homepage": "https://github.com/esri-es/ArcNode",
-  "dependencies": {
-    "arcgis-json-objects": "0.0.6",
-    "colors": "^1.1.2",
-    "node-promise": "^0.5.12",
-    "qs": "^6.2.0",
-    "unirest": "^0.5.0"
+    "url": "git@github.com:esri-es/preventas.git"
   }
 }

@@ -52,7 +52,6 @@ service.getToken().then(function(response){
       console.log("\nAdmin service url:".green, admin_service_url);
 
       var req = unirest("GET", admin_service_url);
-
       req.query({
         "f": "json",
         "status": "json",
@@ -70,7 +69,6 @@ service.getToken().then(function(response){
           console.log("\nError:".red, error);
           console.log("res.body=",res.body);
         }
-
         var fields = res.body.layers[config.layer].fields;
         do{
           if(requiredFields.indexOf(fields[i].name.toLowerCase()) !== -1){
@@ -160,6 +158,7 @@ function cronStart(){
             f: 'json',
             where:  '(last_edited_date > last_emailed_date OR last_emailed_date is null) ',
             outFields: '*',
+            returnExtentOnly: false,
           }
         };
 
@@ -177,18 +176,33 @@ function cronStart(){
           }
 
           console.log("\nEntities unclosed:".yellow, res.features.length);
-
+          var arrayPromises = [];
           // Process every pending feature
           for(var i in res.features){
+            //console.log(response.token);
+            var options = {
+              serviceUrl: feature_service,
+              query: {
+                f: 'json',
+                where:  'OBJECTID = '+res.features[i].attributes['OBJECTID'],
+                outFields: '*',
+                returnExtentOnly: true,
+                token: response.token,
+              }
+            };
+            arrayPromises.push(service.getFeatures(options));
+          }
+          Promise.all(arrayPromises).then(function(datos){
+            //console.log(datos);
             util.processFeature({
               config: config,
               service: service,
               feature_service: feature_service,
               res: res,
-              i: i
+              i: i,
+              extents: datos
             });
-          }
-
+          });
         });
       });
     }, null, true, 'Europe/Madrid');

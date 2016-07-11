@@ -21,7 +21,7 @@ module.exports = function ArcNode(options) {
     this.arcgisPath =   options.arcgisPath || "";
     this.portalPath =   options.portalPath || "";
     this.allowSelfSigned = options.allowSelfSigned || false;
-    
+
     this.print_service = options.print_service || "http://sampleserver6.arcgisonline.com/arcgis/rest/services/Utilities/PrintingTools/GPServer/Export%20Web%20Map%20Task";
     this.find_address_candidates_service = options.find_address_candidates_service || "https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/findAddressCandidates";
     var that = this;
@@ -53,7 +53,7 @@ module.exports = function ArcNode(options) {
         if(that.allowSelfSigned){
             process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
         }
-        
+
         var req = {
             hostname: that.root_url,
             port: that.port,
@@ -101,8 +101,8 @@ module.exports = function ArcNode(options) {
         //console.log('url = ', url);
         req = https.get(url, function(res) {
             res.on("data", function(chunk) {
-                
-                res.setEncoding('utf8');    
+
+                res.setEncoding('utf8');
 
                 decoder = new StringDecoder('utf8');
                 textChunk = decoder.write(chunk);
@@ -284,17 +284,17 @@ module.exports = function ArcNode(options) {
         }).join('&');
 
         if(options.serviceName && options.layer){
-            path = 'https://'+that.services_url+'/' + that.account_id + '/arcgis/rest/services/'+ options.serviceName + '/FeatureServer/' + options.layer;    
+            path = 'https://'+that.services_url+'/' + that.account_id + '/arcgis/rest/services/'+ options.serviceName + '/FeatureServer/' + options.layer;
         }else if(options.serviceUrl){
             path = options.serviceUrl;
         }
         path += '/query?' + query;
-        
+
         obj = '';
         //console.log('path=',path);
         req = https.get(path, function (res) {
             res.on('data', function (chunk) {
-                res.setEncoding('utf8');    
+                res.setEncoding('utf8');
 
                 decoder = new StringDecoder('utf8');
                 textChunk = decoder.write(chunk);
@@ -322,7 +322,7 @@ module.exports = function ArcNode(options) {
         req.end();
 
         return deferred.promise;
-        
+
     },
 
     /************************************************************
@@ -412,7 +412,7 @@ module.exports = function ArcNode(options) {
         });
 
         if(options.serviceName && options.layer){
-            path = "/" + that.account_id + "/arcgis/rest/services/"+ options.serviceName + "/FeatureServer/" + options.layer;    
+            path = "/" + that.account_id + "/arcgis/rest/services/"+ options.serviceName + "/FeatureServer/" + options.layer;
         }else if(options.serviceUrl){
             //path = options.serviceUrl;
             path = options.serviceUrl.split("/");
@@ -431,7 +431,7 @@ module.exports = function ArcNode(options) {
                 'Content-Length': postData.length
             }
         };
-        
+
         //console.log('requestOptions = ',requestOptions);
 
         req = http.request(requestOptions, function (response) {

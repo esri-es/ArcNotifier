@@ -37,7 +37,7 @@ module.exports = function Utils(config){
       }
       if(extents == "spatialReference"){
         var wkid = String(extent[extents]['wkid']);
-        tmp = tmp.replace('${wkid}', wkid);
+        tmp = tmp.replace('#{wkid}', wkid);
       }
     }
     tmp = tmp.replace('#{X}', geo['x']);
@@ -56,10 +56,20 @@ module.exports = function Utils(config){
     var userGroup, last_user_group_name, email, n, updateFeature, f, geo, extent;
 
     f = objToCase(obj.res.features[obj.i].attributes, 'upper');
-
-    geo = obj.res.features[obj.i].geometry;
     extent = obj.extents.extent;
     userGroup = config.flow;
+    if(obj.type == 'esriGeometryPolyline'){
+      geo = {
+        x: obj.res.features[obj.i].geometry.paths[0][obj.res.features[obj.i].geometry.paths[0].length%2][0],
+        y:obj.res.features[obj.i].geometry.paths[0][obj.res.features[obj.i].geometry.paths[0].length%2][1]
+      };
+    }
+    else if(obj.type == 'esriGeometryPoint'){
+      geo = obj.res.features[obj.i].geometry;
+    }
+    else if(obj.type == 'esriGeometryPolygon'){
+      geo = obj.res.features[obj.i].centroid;
+    }
     // Get user info
     obj.service.getUserInfo({
       username: f.LAST_EDITED_USER

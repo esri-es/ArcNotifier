@@ -29,11 +29,13 @@ console.log = function(message,param){
 console.log("\nChecking configuration...".green);
 
 service.getToken().then(function(response){
+
+  console.log("\nNew access token:".green, ((response.token)? "done": "error"));
+
   arcgis = ArcGIS({
     'token': response.token,
     'domain': config.organization.root_url + ':' + config.organization.port + '/' + config.organization.arcgisPath
   });
-  console.log("\nNew access token:".green, ((response.token)? "done": "error"));
 
   arcgis.item(config.portal_item.trim()).then(function (item) {
     // Checking if feature service is public (if so -> error)

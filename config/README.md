@@ -30,6 +30,8 @@ Veamos a continuación cada uno de los parámetros que incluyen estos ficheros.
   * **port**: puerto
   * **tls**: booleano indicando si usa TLS o no.
 
+* **whereFilter**: parámetro que permite filtrar la consulta enviada a la API REST para que descarte las geometrías que no se debe comprobar (las que no están activas en el flujo de trabajo)
+
 * **flow**: este objeto define qué cambios de estado provocarán el envío de notificaciones, a quién, y qué se enviará.
 
 ### Definición de un flujo de trabajo

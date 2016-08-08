@@ -114,21 +114,10 @@ service.getToken().then(function(response){
         }
         // End of <Check email templates>
 
-
-        //
-        /*
-        var unExistingVars = [], tmpVar;
-
-        regexp.exec("Policia confirma que el expediente ${OBJECTID} ha sido subsanado c")
-        if()
-        Policia confirma que el expediente ${OBJECTID} ha sido subsanado ${OBJECTIDasdasd}  c
-        */
         if(requiredFieldsPresent !== 3){
           console.log("\nError: ".red, 'Some required fields are not present -> ' + requiredFields.join(', '));
         }else if(res.body.editorTrackingInfo.enableEditorTracking !== true){
           console.log("\nError: ".red, 'Editor tracking is not enabled');
-        //}else if(!validTemplate){
-
         }else{
           if(!validTemplate){
             console.log(('\nWarning: Some fields at the email template does not exist in the service -> ' + unExistingFields.join(', ')).bgYellow.black);
@@ -150,8 +139,8 @@ function cronStart(){
     new CronJob(config.timeScheduler, function() {
       console.log('\nCheck for new updates:'.cyan, new Date());
 
-      //Get a token valid for 21600 minutes
-      service.getToken().then(function(response){
+      //Get a token valid for 1 minute
+      service.getToken({expiration: 1}).then(function(response){
 
         var serviceOpt = {
           serviceUrl: feature_service,
@@ -159,43 +148,25 @@ function cronStart(){
             f: 'json',
           }
         };
-
+        
         service.getFeaturesType(serviceOpt).then(function(type){
-          var options;
+          
+          // if (type.geometryType == 'esriGeometryPolyline' || type.geometryType == 'esriGeometryPoint')
+          var options = {
+                serviceUrl: feature_service,
+                query: {
+                  f: 'json',
+                  where:  '(last_edited_date > last_emailed_date OR last_emailed_date is null) ',
+                  outFields: '*',
+                  returnExtentOnly: false,
+                }
+              };
+          
+          // But if the geometry is a Polygon we also want to get the centroid
           if(type.geometryType == 'esriGeometryPolygon'){
-            options = {
-              serviceUrl: feature_service,
-              query: {
-                f: 'json',
-                where:  '(last_edited_date > last_emailed_date OR last_emailed_date is null) ',
-                outFields: '*',
-                returnExtentOnly: false,
-                returnCentroid : true,
-              }
-            };
+            options.query.returnCentroid = true;
           }
-          if(type.geometryType == 'esriGeometryPolyline'){
-            options = {
-              serviceUrl: feature_service,
-              query: {
-                f: 'json',
-                where:  '(last_edited_date > last_emailed_date OR last_emailed_date is null) ',
-                outFields: '*',
-                returnExtentOnly: false,
-              }
-            };
-          }
-          if(type.geometryType == 'esriGeometryPoint'){
-            options = {
-              serviceUrl: feature_service,
-              query: {
-                f: 'json',
-                where:  '(last_edited_date > last_emailed_date OR last_emailed_date is null) ',
-                outFields: '*',
-                returnExtentOnly: false,
-              }
-            };
-          }
+          
           // Recover new entities which hasn't been closed and has been modified
           if(config.whereFilter){
             options.query.where += 'AND ' + config.whereFilter;
@@ -203,10 +174,9 @@ function cronStart(){
 
           service.getFeatures(options).then(function(res){
             if(res.error && res.error.code === 400){
-              console.log("\nError: ".red, res.error.message);
-              //console.log("\nQuery: ".red, options.query);
+              console.log("\nQuery error: ".red, res.error.message);
               options.query.f = "html";
-              console.log("\nQuery: ".red, options.serviceUrl + "/query?" + qs.stringify(options.query));
+              console.log("\nQuery check: ".red, options.serviceUrl + "/query?" + qs.stringify(options.query));
               return 0;
             }
             console.log("\nEntities unclosed:".yellow, res.features.length);
@@ -226,9 +196,9 @@ function cronStart(){
               };
               arrayPromises.push(service.getFeatures(options));
             }
-            Promise.all(arrayPromises).then(function(datos){
-              //console.log(datos);
-              var tipo = String(type.geometryType);
+            Promise.all(arrayPromises).then(function(data){
+              
+              var geoType = String(type.geometryType);
               for(var j in res.features){
                 util.processFeature({
                   config: config,
@@ -236,8 +206,8 @@ function cronStart(){
                   feature_service: feature_service,
                   res: res,
                   i: j,
-                  extents: datos[j],
-                  type: tipo
+                  extents: data[j],
+                  type: geoType
                 });
               }
             });

@@ -54,7 +54,6 @@ service.getToken().then(function(response){
       console.log("\nAdmin service url:".green, admin_service_url);
 
       var req = unirest("GET", admin_service_url);
-
       req.query({
         "f": "json",
         "status": "json",
@@ -72,7 +71,6 @@ service.getToken().then(function(response){
           console.log("\nError:".red, error);
           console.log("res.body=",res.body);
         }
-
         var fields = res.body.layers[config.layer].fields;
         do{
           if(requiredFields.indexOf(fields[i].name.toLowerCase()) !== -1){
@@ -155,42 +153,95 @@ function cronStart(){
       //Get a token valid for 21600 minutes
       service.getToken().then(function(response){
 
-        // Recover new entities which hasn't been closed and has been modified
-        var options = {
+        var serviceOpt = {
           serviceUrl: feature_service,
           query: {
             f: 'json',
-            where:  '(last_edited_date > last_emailed_date OR last_emailed_date is null) ',
-            outFields: '*',
           }
         };
 
-        if(config.whereFilter){
-          options.query.where += 'AND ' + config.whereFilter;
-        }
-
-        service.getFeatures(options).then(function(res){
-          if(res.error && res.error.code === 400){
-            console.log("\nError: ".red, res.error.message);
-            //console.log("\nQuery: ".red, options.query);
-            options.query.f = "html";
-            console.log("\nQuery: ".red, options.serviceUrl + "/query?" + qs.stringify(options.query));
-            return 0;
+        service.getFeaturesType(serviceOpt).then(function(type){
+          var options;
+          if(type.geometryType == 'esriGeometryPolygon'){
+            options = {
+              serviceUrl: feature_service,
+              query: {
+                f: 'json',
+                where:  '(last_edited_date > last_emailed_date OR last_emailed_date is null) ',
+                outFields: '*',
+                returnExtentOnly: false,
+                returnCentroid : true,
+              }
+            };
+          }
+          if(type.geometryType == 'esriGeometryPolyline'){
+            options = {
+              serviceUrl: feature_service,
+              query: {
+                f: 'json',
+                where:  '(last_edited_date > last_emailed_date OR last_emailed_date is null) ',
+                outFields: '*',
+                returnExtentOnly: false,
+              }
+            };
+          }
+          if(type.geometryType == 'esriGeometryPoint'){
+            options = {
+              serviceUrl: feature_service,
+              query: {
+                f: 'json',
+                where:  '(last_edited_date > last_emailed_date OR last_emailed_date is null) ',
+                outFields: '*',
+                returnExtentOnly: false,
+              }
+            };
+          }
+          // Recover new entities which hasn't been closed and has been modified
+          if(config.whereFilter){
+            options.query.where += 'AND ' + config.whereFilter;
           }
 
-          console.log("\nEntities unclosed:".yellow, res.features.length);
-
-          // Process every pending feature
-          for(var i in res.features){
-            util.processFeature({
-              config: config,
-              service: service,
-              feature_service: feature_service,
-              res: res,
-              i: i
+          service.getFeatures(options).then(function(res){
+            if(res.error && res.error.code === 400){
+              console.log("\nError: ".red, res.error.message);
+              //console.log("\nQuery: ".red, options.query);
+              options.query.f = "html";
+              console.log("\nQuery: ".red, options.serviceUrl + "/query?" + qs.stringify(options.query));
+              return 0;
+            }
+            console.log("\nEntities unclosed:".yellow, res.features.length);
+            var arrayPromises = [];
+            // Process every pending feature
+            for(var i in res.features){
+              //console.log(response.token);
+              var options = {
+                serviceUrl: feature_service,
+                query: {
+                  f: 'json',
+                  where:  'OBJECTID = '+res.features[i].attributes['OBJECTID'],
+                  outFields: '*',
+                  returnExtentOnly: true,
+                  token: response.token,
+                }
+              };
+              arrayPromises.push(service.getFeatures(options));
+            }
+            Promise.all(arrayPromises).then(function(datos){
+              //console.log(datos);
+              var tipo = String(type.geometryType);
+              for(var j in res.features){
+                util.processFeature({
+                  config: config,
+                  service: service,
+                  feature_service: feature_service,
+                  res: res,
+                  i: j,
+                  extents: datos[j],
+                  type: tipo
+                });
+              }
             });
-          }
-
+          });
         });
       });
     }, null, true, 'Europe/Madrid');

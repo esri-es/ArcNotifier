@@ -20,13 +20,24 @@ module.exports = function Utils(config){
   };
 
   // Replace ${attribute_name} for its value in object f
-  this.parseMail = function(email, f, geo){
+  this.parseMail = function(email, f, geo, extent){
     var tmp = email;
     for(var property in f){
       if (f.hasOwnProperty(property)) {
         do{
           tmp = tmp.replace('${'+property+'}', f[property]);
         }while(tmp.indexOf('${'+property+'}') !== -1);
+      }
+    }
+    for(var extents in extent){
+      if(extent.hasOwnProperty(extents)){
+        do{
+          tmp = tmp.replace('${'+extents+'}', extent[extents]);
+        }while(tmp.indexOf('${'+extents+'}') !== -1);
+      }
+      if(extents == "spatialReference"){
+        var wkid = String(extent[extents]['wkid']);
+        tmp = tmp.replace('#{wkid}', wkid);
       }
     }
     tmp = tmp.replace('#{X}', geo['x']);
@@ -42,25 +53,33 @@ module.exports = function Utils(config){
 
   this.processFeature = function (obj){
 
-    var userGroup, last_user_group_name, email, n, updateFeature, f, geo;
+    var userGroup, last_user_group_name, email, n, updateFeature, f, geo, extent;
 
     f = objToCase(obj.res.features[obj.i].attributes, 'upper');
-
-    geo = obj.res.features[obj.i].geometry;
+    extent = obj.extents.extent;
     userGroup = config.flow;
-
+    if(obj.type == 'esriGeometryPolyline'){
+      geo = {
+        x: obj.res.features[obj.i].geometry.paths[0][obj.res.features[obj.i].geometry.paths[0].length%2][0],
+        y:obj.res.features[obj.i].geometry.paths[0][obj.res.features[obj.i].geometry.paths[0].length%2][1]
+      };
+    }
+    else if(obj.type == 'esriGeometryPoint'){
+      geo = obj.res.features[obj.i].geometry;
+    }
+    else if(obj.type == 'esriGeometryPolygon'){
+      geo = obj.res.features[obj.i].centroid;
+    }
     // Get user info
     obj.service.getUserInfo({
       username: f.LAST_EDITED_USER
     }).then(function(res){
       var hasTrigger = false;
-
       for(var g in res.groups){
         last_user_group_name = that.getGroupName(res.groups[g].id);
 
         // Is a group with triggers
         if(last_user_group_name){
-
           if(userGroup[last_user_group_name].hasOwnProperty(f['ESTADO'])){
             console.log('\nInfo: '.yellow + 'Entity ' + f.OBJECTID + ': ' + f.LAST_EDITED_USER + ' belongs '.green +'to group ' + last_user_group_name + ' which has a trigger for the state ' + f['ESTADO']);
             hasTrigger = true;
@@ -86,7 +105,7 @@ module.exports = function Utils(config){
           console.log("Blocked: ",that.emailsInProgress)
 
           email = userGroup[last_user_group_name][f['ESTADO']];
-          email.attachment = [{ data: that.parseMail(email.text, f, geo), alternative: true}];
+          email.attachment = [{ data: that.parseMail(email.text, f, geo, extent), alternative: true}];
 
           // send the message and get a callback with an error or details of the message that was sent
           var server  = emailjs.server.connect(obj.config.smtp_server);

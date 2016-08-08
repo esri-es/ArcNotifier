@@ -29,6 +29,8 @@
 		"tls": true
 	},
 
+	"whereFilter": "Estado <> 'FINALIZADO' AND Estado <> 'SIN INCIDENCIA'",
+
 	"flow": {
 		"policia": {
 			"INICIADO": {

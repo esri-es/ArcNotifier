@@ -25,6 +25,7 @@
 		"user": "<Your username>",
 		"password": "<Your password>",
 		"host": "<Your smtp server>",
+		"timeout": 10000,
 		"port": 587,
 		"tls": true
 	},

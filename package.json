@@ -9,7 +9,7 @@
   "author": "Raul Jimenez <raul.jimenez@esri.es>",
   "license": "BSD-2-Clause",
   "dependencies": {
-    "arc-node": "^0.3.0",
+    "arc-node": "*",
     "arcgis": "^1.0.0-beta.1",
     "cron": "^1.1.0",
     "emailjs": "^1.0.4"

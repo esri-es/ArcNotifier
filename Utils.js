@@ -80,10 +80,14 @@ module.exports = function Utils(config){
 
         // Is a group with triggers
         if(last_user_group_name){
-          if(userGroup[last_user_group_name].hasOwnProperty(f['ESTADO'])){
-            console.log('\nInfo: '.yellow + 'Entity ' + f.OBJECTID + ': ' + f.LAST_EDITED_USER + ' belongs '.green +'to group ' + last_user_group_name + ' which has a trigger for the state ' + f['ESTADO']);
-            hasTrigger = true;
-            break;
+          if(userGroup[last_user_group_name]){
+            if(userGroup[last_user_group_name].hasOwnProperty(f['ESTADO'])){
+              console.log('\nInfo: '.yellow + 'Entity ' + f.OBJECTID + ': ' + f.LAST_EDITED_USER + ' belongs '.green +'to group ' + last_user_group_name + ' which has a trigger for the state ' + f['ESTADO']);
+              hasTrigger = true;
+              break;
+            }
+          }else{
+            console.log('\nInfo: '.yellow + 'Your flow has no triggers for group "' + last_user_group_name + '"');  
           }
         }
       }

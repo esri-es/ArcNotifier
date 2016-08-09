@@ -1,7 +1,7 @@
 'use strict';
 
 //var config  = require('./config/_config'),
-var config = require("./"+process.argv[2]),
+var config = require('./'+process.argv[2]),
     ArcGIS  = require('arcgis'),
     Utils  = require('./utils.js'),
     colors = require('colors'),
@@ -17,20 +17,20 @@ var config = require("./"+process.argv[2]),
     oldLog  = console.log,
     DEBUG   = true;
 
-var feature_service, arcgis;
+var featureService, arcgis;
 
 // If DEBUG is true we will show log messages
-console.log = function(message,param){
+console.log = function(message, param){
   if(DEBUG === true){
     oldLog.apply(console, arguments);
   }
 };
 
-console.log("\nChecking configuration...".green);
+console.log('\nChecking configuration...'.green);
 
 service.getToken().then(function(response){
 
-  console.log("\nNew access token:".green, ((response.token)? "done": "error"));
+  console.log('\nNew access token:'.green, ((response.token)? 'done': 'error'));
 
   arcgis = ArcGIS({
     'token': response.token,
@@ -46,30 +46,30 @@ service.getToken().then(function(response){
     }else if(item.type !== 'Feature Service'){
       console.log('\nThe item type is not "Feature service" it is:'.red, item.type);
     }else{
-      //feature_service = item.url.replace('http:','https:') + '/' + config.layer;
-      feature_service = item.url + '/' + config.layer;
-      console.log("\nFeature service:".green, feature_service);
+      //featureService = item.url.replace('http:','https:') + '/' + config.layer;
+      featureService = item.url + '/' + config.layer;
+      console.log('\nFeature service:'.green, featureService);
 
-      var admin_service_url = item.url.replace("/rest/","/rest/admin/");
-      console.log("\nAdmin service url:".green, admin_service_url);
+      var adminServiceUrl = item.url.replace('/rest/','/rest/admin/');
+      console.log('\nAdmin service url:'.green, adminServiceUrl);
 
-      var req = unirest("GET", admin_service_url);
+      var req = unirest('GET', adminServiceUrl);
       req.query({
-        "f": "json",
-        "status": "json",
-        "token": response.token
+        'f': 'json',
+        'status': 'json',
+        'token': response.token
       });
 
       //Checking if editor tracking and fields are properly configured
       req.end(function (res) {
-        if (res.error) throw new Error(res.error);
-        var i = 0, requiredFieldsPresent = 0, requiredFields = ["estado", "last_emailed_user", "last_emailed_date"];
+        if (res.error){ throw new Error(res.error);}
+        var i = 0, requiredFieldsPresent = 0, requiredFields = ['estado', 'last_emailed_user', 'last_emailed_date'];
 
         try{
           res.body = JSON.parse(res.body);
         }catch(error){
-          console.log("\nError:".red, error);
-          console.log("res.body=",res.body);
+          console.log('\nError:'.red, error);
+          console.log('res.body=',res.body);
         }
         var fields = res.body.layers[config.layer].fields;
         do{
@@ -93,7 +93,7 @@ service.getToken().then(function(response){
 
                 for(var property in fields){
                   // Remove multiple ocurrences
-                  emailTemplate = emailTemplate.split('${'+fields[property].name+'}').join('')
+                  emailTemplate = emailTemplate.split('${'+fields[property].name+'}').join('');
                 }
 
                 do{
@@ -115,9 +115,9 @@ service.getToken().then(function(response){
         // End of <Check email templates>
 
         if(requiredFieldsPresent !== 3){
-          console.log("\nError: ".red, 'Some required fields are not present -> ' + requiredFields.join(', '));
+          console.log('\nError: '.red, 'Some required fields are not present -> ' + requiredFields.join(', '));
         }else if(res.body.editorTrackingInfo.enableEditorTracking !== true){
-          console.log("\nError: ".red, 'Editor tracking is not enabled');
+          console.log('\nError: '.red, 'Editor tracking is not enabled');
         }else{
           if(!validTemplate){
             console.log(('\nWarning: Some fields at the email template does not exist in the service -> ' + unExistingFields.join(', ')).bgYellow.black);
@@ -129,7 +129,7 @@ service.getToken().then(function(response){
       });
     }
   },function(reason){
-    console.log("\nError getting item: ".red, reason);
+    console.log('\nError getting item: '.red, reason);
   });
 });
 
@@ -143,7 +143,7 @@ function cronStart(){
       service.getToken({expiration: 1}).then(function(response){
 
         var serviceOpt = {
-          serviceUrl: feature_service,
+          serviceUrl: featureService,
           query: {
             f: 'json',
           }
@@ -153,7 +153,7 @@ function cronStart(){
           
           // if (type.geometryType == 'esriGeometryPolyline' || type.geometryType == 'esriGeometryPoint')
           var options = {
-                serviceUrl: feature_service,
+                serviceUrl: featureService,
                 query: {
                   f: 'json',
                   where:  '(last_edited_date > last_emailed_date OR last_emailed_date is null) ',
@@ -163,7 +163,7 @@ function cronStart(){
               };
           
           // But if the geometry is a Polygon we also want to get the centroid
-          if(type.geometryType == 'esriGeometryPolygon'){
+          if(type.geometryType === 'esriGeometryPolygon'){
             options.query.returnCentroid = true;
           }
           
@@ -174,21 +174,21 @@ function cronStart(){
 
           service.getFeatures(options).then(function(res){
             if(res.error && res.error.code === 400){
-              console.log("\nQuery error: ".red, res.error.message);
-              options.query.f = "html";
-              console.log("\nQuery check: ".red, options.serviceUrl + "/query?" + qs.stringify(options.query));
+              console.log('\nQuery error: '.red, res.error.message);
+              options.query.f = 'html';
+              console.log('\nQuery check: '.red, options.serviceUrl + '/query?' + qs.stringify(options.query));
               return 0;
             }
-            console.log("\nEntities unclosed:".yellow, res.features.length);
+            console.log('\nEntities unclosed:'.yellow, res.features.length);
             var arrayPromises = [];
             // Process every pending feature
             for(var i in res.features){
               //console.log(response.token);
-              var options = {
-                serviceUrl: feature_service,
+              options = {
+                serviceUrl: featureService,
                 query: {
                   f: 'json',
-                  where:  'OBJECTID = '+res.features[i].attributes['OBJECTID'],
+                  where:  'OBJECTID = ' + res.features[i].attributes.OBJECTID,
                   outFields: '*',
                   returnExtentOnly: true,
                   token: response.token,
@@ -203,7 +203,7 @@ function cronStart(){
                 util.processFeature({
                   config: config,
                   service: service,
-                  feature_service: feature_service,
+                  feature_service: featureService,
                   res: res,
                   i: j,
                   extents: data[j],

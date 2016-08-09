@@ -23,12 +23,13 @@ Veamos a continuación cada uno de los parámetros que incluyen estos ficheros.
 
 * **layer**: número entero que representa el índice de la capa del servicio que contiene los registros/incidencias
 
-* **smtp_server**: servidor SMTP que se usará para el envío de correos
+* **smtp_server**: servidor SMTP que se usará para el envío de correos (acepta cualquier parámetro que acepte [emailjs](https://github.com/eleith/emailjs#emailserverconnectoptions)), por ejemplo:
   * **user**: usuario de correo
   * **password**: password del usuario
   * **host**: direción del servidor SMTP (IP/Dominio)
   * **port**: puerto
   * **tls**: booleano indicando si usa TLS o no.
+  * **timeout**: tiempo que queremos que espere a la respuesta del servidor SMTP
 
 * **whereFilter**: parámetro que permite filtrar la consulta enviada a la API REST para que descarte las geometrías que no se debe comprobar (las que no están activas en el flujo de trabajo)
 

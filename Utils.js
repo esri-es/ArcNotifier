@@ -20,29 +20,39 @@ module.exports = function Utils(config){
   };
 
   // Replace ${attribute_name} for its value in object f
-  this.parseMail = function(email, f, geo, extent){
-    var tmp = email;
-    for(var property in f){
-      if (f.hasOwnProperty(property)) {
-        do{
-          tmp = tmp.replace('${'+property+'}', f[property]);
-        }while(tmp.indexOf('${'+property+'}') !== -1);
-      }
-    }
-    for(var extents in extent){
-      if(extent.hasOwnProperty(extents)){
-        do{
-          tmp = tmp.replace('${'+extents+'}', extent[extents]);
-        }while(tmp.indexOf('${'+extents+'}') !== -1);
-      }
-      if(extents == "spatialReference"){
-        var wkid = String(extent[extents]['wkid']);
-        tmp = tmp.replace('#{wkid}', wkid);
-      }
-    }
-    tmp = tmp.replace('#{X}', geo['x']);
-    tmp = tmp.replace('#{Y}', geo['y']);
+  this.parseMail = function(options){
+    var tmp = options.email || "";
 
+    if(options.f){
+      var f = options.f;
+      for(var property in f){
+        if (f.hasOwnProperty(property)) {
+          do{
+            tmp = tmp.replace('${'+property+'}', f[property]);
+          }while(tmp.indexOf('${'+property+'}') !== -1);
+        }
+      }
+    }
+    if(options.extent){
+      var extent = options.extent;
+
+      for(var extents in extent){
+        if(extent.hasOwnProperty(extents)){
+          do{
+            tmp = tmp.replace('${'+extents+'}', extent[extents]);
+          }while(tmp.indexOf('${'+extents+'}') !== -1);
+        }
+        if(extents == "spatialReference"){
+          var wkid = String(extent[extents]['wkid']);
+          tmp = tmp.replace('#{wkid}', wkid);
+        }
+      }
+    }
+    if(options.geo){
+      tmp = tmp.replace('#{X}', options.geo['x']);
+      tmp = tmp.replace('#{Y}', options.geo['y']);  
+    }
+    
     return tmp;
   };
 
@@ -109,7 +119,14 @@ module.exports = function Utils(config){
           console.log("Blocked: ",that.emailsInProgress)
 
           email = userGroup[last_user_group_name][f['ESTADO']];
-          email.attachment = [{ data: that.parseMail(email.text, f, geo, extent), alternative: true}];
+          email.subject = that.parseMail({email: email.subject, f: f});
+          var emailData = that.parseMail({
+                            email: email.text,
+                            f: f,
+                            geo: geo,
+                            extent: extent
+                          });
+          email.attachment = [{ data: emailData, alternative: true}];
 
           // send the message and get a callback with an error or details of the message that was sent
           var server  = emailjs.server.connect(obj.config.smtp_server);

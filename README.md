@@ -1,4 +1,5 @@
-#arc-notifier
+# arc-notifier
+
 Arc-Notifier es un script escrito en NodeJS que permite enviar notificaciones vía email cuando un registro de un servicio publicado en ArcGIS Online o Portal for ArcGIS cambia de estado. El principal propósito de este script es ayudar a crear un sistema de notificaciones para flujos de trabajo como podemos ver en este vídeo de demostración (~16min):
 
 [<img src="https://i.ytimg.com/vi/reX7ZTi2Alo/hqdefault.jpg">](https://www.youtube.com/watch?v=reX7ZTi2Alo)
